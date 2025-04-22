@@ -7,39 +7,100 @@ function GuardFunction(type) {
   return false;
 }
 // for sure js doesn't have fkin interfaces
-//
-export class RoleFactory {
-  createdRoles = [];
 
-  constructor(numberOfPlayers = 6) {
-    this.numberOfPlayers = numberOfPlayers;
+export class Game {
+  players = [];
+  playerFactory;
+  roleFactory;
+  constructor() {
+    this.playerFactory = new PlayerFactory();
+    this.roleFactory = new RoleFactory();
+  }
+  Debug() {
+    for (let p of this.players) {
+      console.log(p.GetRole());
+    }
+  }
+  Start(numberOfplayers = 6) {
+    this.SetNumberOfPlayers(numberOfplayers);
+    this.players = this.playerFactory.GeneratePlayers(this.numberOfPlayers);
+    this.CreatePlayerRoles();
   }
 
-  CreateRoles() {
+  SetNumberOfPlayers(numberOfPlayers) {
+    this.numberOfPlayers = numberOfPlayers;
+  }
+  CreatePlayerRoles() {
+    this.roleFactory.CreateRoles(this.numberOfPlayers);
+    this.RandomlyAssignPlayerRoles();
+  }
+  RandomlyAssignPlayerRoles() {
+    this.roleFactory.ShuffeleInPlace();
+    for (let idx = 0; idx < this.players.length; idx++) {
+      const player = this.players[idx];
+      const role = this.roleFactory.createdRoles[idx];
+      player.SetRole(role);
+    }
+  }
+}
+
+export class PlayerFactory {
+  constructor() {}
+  GeneratePlayers(numberOfPlayers) {
+    let playersArr = [];
+    for (let index = 0; index < numberOfPlayers; index++) {
+      const p = new Player();
+      playersArr.push(p);
+    }
+    return playersArr;
+  }
+}
+export class RoleFactory {
+  createdRoles = [];
+  NumberOfRoles = 9;
+  NumberOfGroundCards = 3;
+  constructor() {}
+
+  ShuffeleInPlace() {
+    for (let i = this.createdRoles.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.createdRoles[i], this.createdRoles[j]] = [
+        this.createdRoles[j],
+        this.createdRoles[i],
+      ];
+    }
+  }
+  SetNumberOfRolers(NumberOfPlayers) {
+    this.NumberOfRoles = NumberOfPlayers + this.NumberOfGroundCards;
+  }
+  CreateRoles(numberOfPlayers) {
+    this.SetNumberOfRolers(numberOfPlayers);
     const allRoles = Object.values(consts.roles);
     allRoles.forEach((r) => {
-      if (this.createdRoles.length >= this.numberOfPlayers) {
+      if (this.createdRoles.length >= this.NumberOfRoles) {
         return;
       }
-      const effect = new Effect("testValue", "hello" + l);
-      console.log(effect);
+      const effect = new Effect("testValue", "hello");
       const role = new Role(r, consts.teams.Vilans);
       role.effect = effect;
       role.description = "testtest";
       this.createdRoles.push(role);
     });
+    return this.createdRoles;
   }
 }
 
 export class Player {
   #role;
   #score = 0;
-  constructor(role, name = "player") {
+  constructor(name = "player") {
     this.name = name;
-    this.#role = role;
   }
   GetRole() {
     return this.#role;
+  }
+  SetRole(role) {
+    this.#role = role;
   }
   ChangeRole(role) {
     temp = role;
