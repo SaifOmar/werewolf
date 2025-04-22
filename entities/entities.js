@@ -6,6 +6,7 @@ function GuardFunction(type) {
   }
   return false;
 }
+
 // for sure js doesn't have fkin interfaces
 
 export class Game {
@@ -18,7 +19,7 @@ export class Game {
   }
   Debug() {
     for (let p of this.players) {
-      console.log(p.GetRole());
+      console.log("role", p.GetRole(), "name", p.name);
     }
   }
   Start(numberOfplayers = 6) {
