@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Werewolf: The Ultimate Night</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aclonica&family=Aubrey&family=Birthstone&family=Creepster&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lexend+Deca:wght@100..900&family=Merienda:wght@300..900&family=Micro+5&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Playwrite+IE+Guides&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Silkscreen:wght@400;700&family=Tiny5&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container" id="gameContainer">
+    <div class="theme-toggle">
+      <div class="toggle-switch" id="themeToggle"></div>
+      <div class="toggle-text" id="themeText">DARK MODE</div>
+    </div>
+    
+    <div class="moon"></div>
+    
+    <!-- Improved Trees -->
+    <div class="tree tree1">
+      <div class="tree-foliage">
+        <div class="tree-layer tree-layer-1"></div>
+        <div class="tree-layer tree-layer-2"></div>
+        <div class="tree-layer tree-layer-3"></div>
+      </div>
+      <div class="tree-trunk"></div>
+    </div>
+    
+    <div class="tree tree2">
+      <div class="tree-foliage">
+        <div class="tree-layer tree-layer-1"></div>
+        <div class="tree-layer tree-layer-2"></div>
+      </div>
+      <div class="tree-trunk"></div>
+    </div>
+    
+    <div class="tree tree3">
+      <div class="tree-foliage">
+        <div class="tree-layer tree-layer-1"></div>
+        <div class="tree-layer tree-layer-2"></div>
+        <div class="tree-layer tree-layer-3"></div>
+      </div>
+      <div class="tree-trunk"></div>
+    </div>
+    
+    <div class="game-title">
+      <h1>WEREWOLF</h1>
+      <h2>THE ULTIMATE NIGHT</h2>
+    </div>
+    
+    <div class="menu-container">
+      <button class="menu-button">START GAME</button>
+    </div>
+    
+    <!-- Improved Characters -->
+    <div class="character werewolf">
+      <div class="werewolf-sprite">
+        <div class="werewolf-head">
+          <div class="werewolf-ear-left"></div>
+          <div class="werewolf-ear-right"></div>
+          <div class="werewolf-eye-left"></div>
+          <div class="werewolf-eye-right"></div>
+          <div class="werewolf-snout"></div>
+        </div>
+        <div class="werewolf-body"></div>
+        <div class="werewolf-arm-left"></div>
+        <div class="werewolf-arm-right"></div>
+        <div class="werewolf-leg-left"></div>
+        <div class="werewolf-leg-right"></div>
+      </div>
+    </div>
+    
+    <div class="character villager">
+      <div class="villager-sprite">
+        <div class="villager-hat-top"></div>
+        <div class="villager-hat"></div>
+        <div class="villager-head">
+          <div class="villager-eye-left"></div>
+          <div class="villager-eye-right"></div>
+          <div class="villager-mouth"></div>
+        </div>
+        <div class="villager-body"></div>
+        <div class="villager-arm-left"></div>
+        <div class="villager-arm-right"></div>
+        <div class="villager-leg-left"></div>
+        <div class="villager-leg-right"></div>
+      </div>
+    </div>
+    
+    <div class="ground"></div>
+  </div>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const gameContainer = document.getElementById('gameContainer');
+    const themeText = document.getElementById('themeText');
+    
+    themeToggle.addEventListener('click', () => {
+      gameContainer.classList.toggle('light-theme');
+      if (gameContainer.classList.contains('light-theme')) {
+        themeText.textContent = 'LIGHT MODE';
+      } else {
+        themeText.textContent = 'DARK MODE';
+      }
+    });
+    
+    // Add hover effect to menu buttons
+    const menuButtons = document.querySelectorAll('.menu-button');
+    menuButtons.forEach(button => {
+      button.addEventListener('mouseover', () => {
+        button.style.transform = 'scale(1.05)';
+        button.style.filter = 'brightness(1.2)';
+      });
+      
+      button.addEventListener('mouseout', () => {
+        button.style.transform = 'scale(1)';
+        button.style.filter = 'brightness(1)';
+      });
+      
+      button.addEventListener('mousedown', () => {
+        button.style.transform = 'scale(0.95)';
+      });
+      
+      button.addEventListener('mouseup', () => {
+        button.style.transform = 'scale(1.05)';
+      });
+    });
+  </script>
+</body>
+</html>
