@@ -20,17 +20,24 @@ export class Game {
   Debug() {
     for (let p of this.players) {
       console.log(p.GetRole());
+      console.log(p.name);
     }
   }
   Start(numberOfplayers = 6) {
     this.SetNumberOfPlayers(numberOfplayers);
-    this.players = this.playerFactory.GeneratePlayers(this.numberOfPlayers);
+    this.players = this.playerFactory.GeneratePlayers(this.numberOfPlayers, this.playerNames);
     this.CreatePlayerRoles();
   }
 
   SetNumberOfPlayers(numberOfPlayers) {
     this.numberOfPlayers = numberOfPlayers;
   }
+
+  SetPlayerNames(playerNames){
+    this.playerNames = playerNames;
+    console.log(this.playerNames)
+  }
+
   CreatePlayerRoles() {
     this.roleFactory.CreateRoles(this.numberOfPlayers);
     this.RandomlyAssignPlayerRoles();
@@ -47,10 +54,11 @@ export class Game {
 
 export class PlayerFactory {
   constructor() {}
-  GeneratePlayers(numberOfPlayers) {
+  GeneratePlayers(numberOfPlayers, playerNames) {
+    
     let playersArr = [];
     for (let index = 0; index < numberOfPlayers; index++) {
-      const p = new Player();
+      const p = new Player(playerNames[index]);
       playersArr.push(p);
     }
     return playersArr;
@@ -71,20 +79,22 @@ export class RoleFactory {
       ];
     }
   }
-  SetNumberOfRolers(NumberOfPlayers) {
+  SetNumberOfRoles(NumberOfPlayers) {
     this.NumberOfRoles = NumberOfPlayers + this.NumberOfGroundCards;
   }
   CreateRoles(numberOfPlayers) {
-    this.SetNumberOfRolers(numberOfPlayers);
-    const allRoles = Object.values(consts.roles);
+    this.SetNumberOfRoles(numberOfPlayers);
+    const allRoles = consts.roles;
     allRoles.forEach((r) => {
       if (this.createdRoles.length >= this.NumberOfRoles) {
         return;
       }
-      const effect = new Effect("testValue", "hello");
-      const role = new Role(r, consts.teams.Villians);
+      const effect = new Effect(r.effect.effectName, r.effect.action);
+      const teamName = r.team;
+      const teamType = consts.teams[teamName]
+      const role = new Role(r.roleName, teamType);
       role.effect = effect;
-      role.description = "testtest";
+      role.description = r.description;
       this.createdRoles.push(role);
     });
     return this.createdRoles;
@@ -94,7 +104,7 @@ export class RoleFactory {
 export class Player {
   #role;
   #score = 0;
-  constructor(name = "player") {
+  constructor(name) {
     this.name = name;
   }
   GetRole() {
@@ -141,15 +151,15 @@ export class Role {
 
 export class Effect {
   effectName;
-  value;
+  action;
 
-  constructor(effectName, value = "testValue") {
-    this.value = value;
+  constructor(effectName, action) {
     this.effectName = effectName;
+    this.action = action;
   }
 
   // should print hello
   DoEffect() {
-    console.log(this.value);
+    console.log(this.action);
   }
 }

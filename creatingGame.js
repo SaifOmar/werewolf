@@ -1,4 +1,9 @@
- // Theme Toggle Functionality
+import { Game } from "./entities/entities.js";
+export const game = new Game();
+let n = 6;
+
+
+// Theme Toggle Functionality
  const themeToggle = document.getElementById('themeToggle');
  const gameContainer = document.querySelector('.game-container');
  
@@ -28,10 +33,6 @@
    
    // Ensure first player can't be removed if we have more than one player
    updateRemoveButtons();
-   
-   // Focus the new input
-   const newInput = playerInput.querySelector('input');
-   newInput.focus();
  });
  
  // Remove Player
@@ -64,8 +65,8 @@
  
  // Start Game Button (for demonstration)
  startGameBtn.addEventListener('click', () => {
-   const playerNames = [];
-   const playerInputs = document.querySelectorAll('.player-name');
+    const playerNames = [];
+    const playerInputs = document.querySelectorAll('.player-name');
    
    playerInputs.forEach(input => {
      if (input.value.trim() !== '') {
@@ -77,8 +78,11 @@
      alert('You need at least 6 players to start the game!');
      return;
    }
-   
-   location.href = "gameStart.html"
+   game.SetPlayerNames(playerNames);
+   game.Start();
+   game.Debug();
+
+//    location.href = "gameStart.html"
  });
  
  // Initialize
