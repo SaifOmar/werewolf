@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Werewolf Game - Player Registration</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Creepster">
+  <link rel="stylesheet" href="creatingGame.css">
+</head>
+<body>
+  <div class="game-container">
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+      <div class="toggle-switch" id="themeToggle"></div>
+      <span class="toggle-text">Night/Day</span>
+    </div>
+    
+    <!-- Game Title -->
+    <div class="game-title">
+      <h1>WEREWOLF</h1>
+      <h2>PLAYER REGISTRATION</h2>
+    </div>
+    
+    <!-- Form Container -->
+    <div class="form-container">
+      <h3 class="form-title">ENTER PLAYER NAMES</h3>
+      
+      <div class="players-section" id="playersContainer">
+        <!-- Player inputs will be generated here -->
+        <div class="player-input">
+          <span class="player-number">1.</span>
+          <input type="text" placeholder="Player name..." class="player-name">
+          <button class="remove-player" style="visibility: hidden;">×</button>
+        </div>
+        <div class="player-input">
+          <span class="player-number">2.</span>
+          <input type="text" placeholder="Player name..." class="player-name">
+          <button class="remove-player">×</button>
+        </div>
+      </div>
+      
+      <div class="form-buttons">
+        <button class="menu-button add-player-btn" id="addPlayerBtn">ADD PLAYER</button>
+        <button class="menu-button start-game-btn" id="startGameBtn">START GAME</button>
+      </div>
+    </div>
+    
+    <!-- Decorative Elements -->
+    <div class="moon"></div>
+    
+    <div class="tree tree1">
+      <div class="tree-foliage">
+        <div class="tree-layer tree-layer-1"></div>
+        <div class="tree-layer tree-layer-2"></div>
+        <div class="tree-layer tree-layer-3"></div>
+      </div>
+      <div class="tree-trunk"></div>
+    </div>
+    
+    <div class="tree tree2">
+      <div class="tree-foliage">
+        <div class="tree-layer tree-layer-1"></div>
+        <div class="tree-layer tree-layer-2"></div>
+        <div class="tree-layer tree-layer-3"></div>
+      </div>
+      <div class="tree-trunk"></div>
+    </div>
+    
+    <div class="tree tree3">
+      <div class="tree-foliage">
+        <div class="tree-layer tree-layer-1"></div>
+        <div class="tree-layer tree-layer-2"></div>
+        <div class="tree-layer tree-layer-3"></div>
+      </div>
+      <div class="tree-trunk"></div>
+    </div>
+    
+    <div class="ground"></div>
+  </div>
+  <script src="creatingGame.js"></script>
+</body>
+</html>
