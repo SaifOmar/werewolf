@@ -24,7 +24,8 @@ const rolesJson = `[
         "roleName": "Maison",
         "team": "GoodGuys",
         "description": "He's the watcher of the village trying to find the truth",
-        "effect":{"effectName":"truthSeeker.exe",
+        "effect":{
+        "effectName":"truthSeeker.exe",
         "action": "He knows the other maison in the game if existed to be able to find the truth easier"}},
 
     {
