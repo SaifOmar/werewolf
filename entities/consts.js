@@ -1,4 +1,3 @@
-
 const rolesJson = `[
     {"roleName": "Werewolf",
     "team": "Villians",
@@ -42,15 +41,12 @@ const rolesJson = `[
     "effect":{"effectName":"oopsIClickedIt",
     "action": "He swaps his drunk card with one of the cards on the ground he chooses but he doesn't know it tho"}}
   ]`;
-  
-  const teamJson = `{
+
+const teamJson = `{
     "Villians": "Werewolf",
     "GoodGuys": "Villagers"
   }`;
 
+export const roles = JSON.parse(rolesJson);
 
-export  const roles = JSON.parse(rolesJson);
-
-export  const teams = JSON.parse(teamJson);
-
-
+export const teams = JSON.parse(teamJson);
