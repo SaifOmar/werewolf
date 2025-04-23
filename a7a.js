@@ -1,6 +1,10 @@
-import { Game } from "./entities/entities.js";
+import { Game } from "./entities/game.js";
 
-const game = new Game();
-let n = 12;
-game.Start(n);
+export const game = new Game();
+
+let n = 6;
+const ps = ["hello", "ss", "fkldasjfkl", "sdghlasdgf", "dfhasld", "sassif"];
+game.SetPlayerNames(ps);
+game.Start();
+
 game.Debug();
