@@ -44,7 +44,6 @@ export class Game {
 
 	SetPlayerNames(playerNames) {
 		this.playerNames = playerNames;
-		console.log(this.playerNames);
 	}
 
 	CreatePlayerRoles() {
