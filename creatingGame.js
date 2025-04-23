@@ -1,4 +1,4 @@
-import { Game } from "./entities/entities.js";
+import { Game } from "./entities/game.js";
 export const game = new Game();
 let n = 6;
 
@@ -82,7 +82,7 @@ let n = 6;
    game.Start();
    game.Debug();
 
-//    location.href = "gameStart.html"
+//    location.href = "timer.html"
  });
  
  // Initialize
