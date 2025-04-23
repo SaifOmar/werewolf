@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Werewolf: The Ultimate Night - Game</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Creepster"
+    />
+    <link rel="stylesheet" href="gameStart.css" />
+  </head>
+  <body>
+    <div class="game-container" id="gameContainer">
+      <!-- Theme Toggle -->
+      <div class="theme-toggle">
+        <div class="toggle-switch" id="themeToggle"></div>
+        <span class="toggle-text" id="themeText">NIGHT MODE</span>
+      </div>
+
+      <!-- Game Title -->
+      <div class="game-title">
+        <h1>WEREWOLF</h1>
+      </div>
+
+      <!-- Game  -->
+      <div class="game">
+        <h1>REVEAL YOUR ROLE</h1>
+
+        <div class="scratch">
+          <h2 class="nextPlayer">Give the phone to player 1</h2>
+        </div>
+
+        <button class="reveal">Click to Reveal</button>
+        <button class="gameRules" style="display: none">NEXT</button>
+        <div class="timer" style="display: none">10:00</div>
+      </div>
+
+      <!-- Trees -->
+      <div class="moon"></div>
+
+      <div class="tree tree1">
+        <div class="tree-foliage">
+          <div class="tree-layer tree-layer-1"></div>
+          <div class="tree-layer tree-layer-2"></div>
+          <div class="tree-layer tree-layer-3"></div>
+        </div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="tree tree2">
+        <div class="tree-foliage">
+          <div class="tree-layer tree-layer-1"></div>
+          <div class="tree-layer tree-layer-2"></div>
+          <div class="tree-layer tree-layer-3"></div>
+        </div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="tree tree3">
+        <div class="tree-foliage">
+          <div class="tree-layer tree-layer-1"></div>
+          <div class="tree-layer tree-layer-2"></div>
+          <div class="tree-layer tree-layer-3"></div>
+        </div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="ground"></div>
+    </div>
+
+    <script src="gameStart.js"></script>
+  </body>
+</html>

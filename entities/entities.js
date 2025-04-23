@@ -11,6 +11,7 @@ function GuardFunction(type) {
 
 export class Game {
   players = [];
+  playerNames = [];
   playerFactory;
   roleFactory;
   constructor() {
@@ -82,7 +83,7 @@ export class RoleFactory {
         return;
       }
       const effect = new Effect("testValue", "hello");
-      const role = new Role(r, consts.teams.Vilans);
+      const role = new Role(r, consts.teams.Villians);
       role.effect = effect;
       role.description = "testtest";
       this.createdRoles.push(role);
