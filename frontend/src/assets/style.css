@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
 
-
 /* Global Styles */
 * {
   margin: 0;
@@ -11,14 +10,13 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-body,
-html {
+html, body {
+  overflow-x: hidden;
   margin: 0;
   padding: 0;
-  width: 100%;
-  height: 100%;
+  min-height: 100vh;
+  background-color: var(--primary-bg); /* Match the game container background */
 }
-
 
 /* Theme Variables */
 :root {
@@ -36,8 +34,6 @@ html {
   --moon-color: #f4f4f4;
   --tree-trunk: #6e2b1a;
   --tree-leaves: #3e8948;
-  --input-bg: #222233;
-  --input-border: #555566;
 }
 
 .light-theme {
@@ -55,30 +51,20 @@ html {
   --moon-color: #ffcc33;
   --tree-trunk: #8B4513;
   --tree-leaves: #228B22;
-  --input-bg: #e0e0e0;
-  --input-border: #bbbbbb;
 }
 
 /* Container */
 .game-container {
   width: 100%;
-  height: 100vh;
-  /* Use fixed height instead of min-height */
+  min-height: 100vh;
   background-color: var(--primary-bg);
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 0;
-  /* Remove the padding that was causing overflow */
+  padding-bottom: 140px; /* Height of ground */
+  overflow: hidden;
 }
-
-/* Make sure your root container also has full width */
-#root {
-  width: 100%;
-  height: 100%;
-}
-
 
 /* Game Title */
 .game-title {
@@ -103,108 +89,18 @@ html {
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Form Container */
-.form-container {
-  width: min(90%, 500px);
+/* Menu */
+.menu-container {
+  width: min(90%, 300px);
   background-color: var(--secondary-bg);
   border: 4px solid #aaaaaa;
   padding: 20px;
   margin: 20px auto;
-  margin-top: 40px;
+  margin-top: 100px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
   z-index: 5;
-  border-radius: 8px;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-
-  /* NEW: Limit height so it doesn't stretch too far */
-  max-height: 80vh;
-  overflow: hidden;
-
-}
-
-.form-title {
-  color: var(--highlight-color);
-  font-size: clamp(20px, 4vw, 28px);
-  letter-spacing: 3px;
-  text-align: center;
-  margin-bottom: 15px;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-}
-
-/* Player Input Section */
-.players-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-
-  /* NEW: Scroll inside this section if too many players */
-  overflow-y: auto;
-  max-height: 45vh; /* Adjust this as needed */
-  padding-right: 5px; /* Add space for scrollbar */
-}
-
-.player-input {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.player-number {
-  color: var(--secondary-highlight);
-  font-size: 18px;
-  min-width: 30px;
-  text-align: right;
-}
-
-input[type="text"] {
-  flex-grow: 1;
-  padding: 12px 15px;
-  border: 2px solid var(--input-border);
-  background-color: var(--input-bg);
-  color: var(--text-color);
-  font-size: 15px; /* slightly smaller font */
-  border-radius: 5px;
-  letter-spacing: 1px;
-}
-
-input[type="text"]::placeholder {
-  color: var(--text-color);
-  opacity: 0.6;
-}
-
-input[type="text"]:focus {
-  outline: none;
-  border-color: var(--highlight-color);
-  box-shadow: 0 0 0 2px rgba(255, 85, 85, 0.3);
-}
-
-.remove-player {
-  background-color: var(--highlight-color);
-  color: white;
-  border: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-.remove-player:hover {
-  filter: brightness(1.2);
-}
-
-/* Buttons */
-.form-buttons {
-  display: flex;
-  gap: 15px;
-  margin-top: 15px;
-  margin-bottom: 5px; /* new: little breathing room */
-  flex-shrink: 0; /* prevent shrinking when scrolling */
 }
 
 .menu-button {
@@ -212,22 +108,11 @@ input[type="text"]:focus {
   background-color: var(--button-bg);
   color: var(--text-color);
   border: none;
-  padding: 12px 15px;
-  font-size: clamp(16px, 3vw, 18px);
+  padding: 15px;
+  font-size: clamp(16px, 5vw, 20px);
   cursor: pointer;
   text-align: center;
   border-radius: 5px;
-  flex-grow: 1;
-}
-
-.add-player-btn {
-  background-color: var(--secondary-highlight);
-  color: white;
-}
-
-.start-game-btn {
-  background-color: var(--highlight-color);
-  color: white;
 }
 
 .menu-button:hover {
@@ -235,8 +120,9 @@ input[type="text"]:focus {
   transform: scale(1.02);
 }
 
+/* Ground */
 .ground {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
   height: 140px;
@@ -290,7 +176,7 @@ input[type="text"]:focus {
   border-radius: 50%;
 }
 
-/* Trees */
+/* Improved Trees */
 .tree {
   position: absolute;
   bottom: 140px;
@@ -335,6 +221,9 @@ input[type="text"]:focus {
 .tree1 {
   left: 10%;
   transform: scale(3.9);
+  z-index: 1; /* Ensure it's behind other elements */
+  bottom: 140px; /* Position relative to ground */
+  height: auto; /* Let height be determined by content */
 }
 
 .tree2 {
@@ -345,6 +234,272 @@ input[type="text"]:focus {
 .tree3 {
   right: 10%;
   transform: scale(1.4);
+}
+
+@media (max-width: 768px) {
+  .tree1 {
+    left: 5%;
+  }
+
+  .tree3 {
+    right: 5%;
+  }
+
+  .tree2 {
+    display: none;
+  }
+}
+
+/* Characters */
+.character {
+  position: absolute;
+  bottom: 140px;
+  z-index: 2;
+}
+
+.werewolf {
+  right: 15%;
+}
+
+.villager {
+  left: 15%;
+}
+
+@media (max-width: 768px) {
+  .werewolf {
+    right: 8%;
+    transform: scale(0.8);
+  }
+
+  .villager {
+    left: 8%;
+    transform: scale(0.8);
+  }
+}
+
+/* Improved Characters */
+/* Werewolf Sprite */
+.werewolf-sprite {
+  width: 80px;
+  height: 120px;
+  position: relative;
+  transform: scale(2);
+  transform-origin: bottom center;
+}
+
+.werewolf-head {
+  width: 40px;
+  height: 40px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  top: 5px;
+  left: 20px;
+  border-radius: 5px;
+}
+
+.werewolf-ear-left {
+  width: 12px;
+  height: 18px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  top: -10px;
+  left: 5px;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+.werewolf-ear-right {
+  width: 12px;
+  height: 18px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  top: -10px;
+  right: 5px;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+.werewolf-eye-left {
+  width: 8px;
+  height: 8px;
+  background-color: #ff3333;
+  position: absolute;
+  top: 18px;
+  left: 10px;
+  border-radius: 2px;
+}
+
+.werewolf-eye-right {
+  width: 8px;
+  height: 8px;
+  background-color: #ff3333;
+  position: absolute;
+  top: 18px;
+  right: 10px;
+  border-radius: 2px;
+}
+
+.werewolf-snout {
+  width: 20px;
+  height: 12px;
+  background-color: var(--werewolf-dark);
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  border-radius: 0 0 5px 5px;
+}
+
+.werewolf-body {
+  width: 30px;
+  height: 40px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  top: 45px;
+  left: 25px;
+}
+
+.werewolf-arm-left {
+  width: 10px;
+  height: 30px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  top: 45px;
+  left: 15px;
+}
+
+.werewolf-arm-right {
+  width: 10px;
+  height: 30px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  top: 45px;
+  right: 15px;
+}
+
+.werewolf-leg-left {
+  width: 10px;
+  height: 35px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  bottom: 0;
+  left: 25px;
+}
+
+.werewolf-leg-right {
+  width: 10px;
+  height: 35px;
+  background-color: var(--werewolf-color);
+  position: absolute;
+  bottom: 0;
+  right: 25px;
+}
+
+/* Villager Sprite */
+.villager-sprite {
+  width: 80px;
+  height: 120px;
+  position: relative;
+  transform: scale(2);
+  transform-origin: bottom center;
+}
+
+.villager-head {
+  width: 40px;
+  height: 35px;
+  background-color: var(--villager-skin);
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  border-radius: 3px;
+}
+
+.villager-hat {
+  width: 48px;
+  height: 15px;
+  background-color: #8b5a2b;
+  position: absolute;
+  top: 0px;
+  left: 16px;
+  border-radius: 3px 3px 0 0;
+}
+
+.villager-hat-top {
+  width: 36px;
+  height: 10px;
+  background-color: #8b5a2b;
+  position: absolute;
+  top: -10px;
+  left: 22px;
+}
+
+.villager-eye-left {
+  width: 6px;
+  height: 6px;
+  background-color: #000000;
+  position: absolute;
+  top: 10px;
+  left: 28px;
+}
+
+.villager-eye-right {
+  width: 6px;
+  height: 6px;
+  background-color: #000000;
+  position: absolute;
+  top: 10px;
+  right: 28px;
+}
+
+.villager-mouth {
+  width: 12px;
+  height: 3px;
+  background-color: #d35f5f;
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+}
+
+.villager-body {
+  width: 30px;
+  height: 40px;
+  background-color: #8B4513;
+  position: absolute;
+  top: 50px;
+  left: 25px;
+}
+
+.villager-arm-left {
+  width: 10px;
+  height: 30px;
+  background-color: var(--villager-skin);
+  position: absolute;
+  top: 50px;
+  left: 15px;
+}
+
+.villager-arm-right {
+  width: 10px;
+  height: 30px;
+  background-color: var(--villager-skin);
+  position: absolute;
+  top: 50px;
+  right: 15px;
+}
+
+.villager-leg-left {
+  width: 10px;
+  height: 30px;
+  background-color: #4a2511;
+  position: absolute;
+  bottom: 0;
+  left: 25px;
+}
+
+.villager-leg-right {
+  width: 10px;
+  height: 30px;
+  background-color: #4a2511;
+  position: absolute;
+  bottom: 0;
+  right: 25px;
 }
 
 /* Theme toggle */
@@ -390,23 +545,9 @@ input[type="text"]:focus {
   font-size: clamp(12px, 3vw, 16px);
 }
 
-@media (max-width: 768px) {
-  .tree1 {
-    transform: scale(2.5);
-    /* Reduce from 3.9 */
-  }
-
-  .tree2 {
-    transform: scale(1.2);
-    /* Reduce from 1.7 */
-  }
-
-  .tree3 {
-    transform: scale(1);
-    /* Reduce from 1.4 */
-  }
+a {
+  text-decoration: none;
 }
-
 
 @media (max-width: 500px) {
   .theme-toggle {
@@ -428,9 +569,5 @@ input[type="text"]:focus {
 
   .light-theme .toggle-switch::after {
     transform: translateX(25px);
-  }
-
-  .form-buttons {
-    flex-direction: column;
   }
 }

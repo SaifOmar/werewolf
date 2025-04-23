@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './style.css'; // Assuming your CSS file is named style.css
+import '../assets/style.css'; // Assuming your CSS file is named style.css
 
-function Index() {
+function Index({ onStartGame }) {
   const [isLightTheme, setIsLightTheme] = useState(false);
 
   const handleThemeToggle = () => {
@@ -9,14 +9,14 @@ function Index() {
   };
 
   const handleStartGameClick = () => {
-    window.location.href = 'creatingGame.html';
+    onStartGame(); // This will call the function from App.jsx to navigate
   };
 
   return (
     <div className={`game-container ${isLightTheme ? 'light-theme' : ''}`} id="gameContainer">
       <div className="theme-toggle">
         <div className="toggle-switch" id="themeToggle" onClick={handleThemeToggle}></div>
-        <div className="toggle-text" id="themeText">{isLightTheme ? 'LIGHT MODE' : 'DARK MODE'}</div>
+        <div className="toggle-text" id="themeText"></div>
       </div>
 
       <div className="moon"></div>

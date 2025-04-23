@@ -1,6 +1,7 @@
 // src/App.js
 import React, { useState } from 'react';
 import PlayerRegistration from './components/PlayerRegistration'; // Adjust path if needed
+import Index from './components/Index'
 import TimerScreen from './components/TimerScreen';     // Adjust path if needed
 import ThemeToggle from './components/ThemeToggle';     // Adjust path if needed
 
@@ -11,7 +12,8 @@ import './assets/timer.css';        // Styles for timer AND theme/decorations
 
 function App() {
   // State to control which component/view is active
-  const [gameState, setGameState] = useState('registration'); // 'registration' or 'timer'
+  const [gameState, setGameState] = useState('index'); // 'index', 'registration' or 'timer'
+  // const [gameState, setGameState] = useState('registration'); // 'registration' or 'timer'
   const [theme, setTheme] = useState('dark'); // Manage theme centrally
 
   // Function to be passed to PlayerRegistration
@@ -29,6 +31,12 @@ function App() {
 
   // Apply theme class to the main container
   const themeClass = theme === 'light' ? 'light-theme' : '';
+  
+  
+  const navigateToRegistration = () => {
+    setGameState('registration');
+  };
+
 
   return (
     // Main container handles the overall theme and structure
@@ -39,43 +47,13 @@ function App() {
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
 
       {/* Conditional Rendering based on gameState */}
-      {gameState === 'registration' ? (
-        // Pass the callback function as a prop
+      {gameState === 'index' ? (
+        <Index onStartGame={navigateToRegistration} />
+      ) : gameState === 'registration' ? (
         <PlayerRegistration onStartGame={handleGameStart} />
       ) : (
-        // Render the Timer screen, pass theme props if needed by its children
         <TimerScreen theme={theme} toggleTheme={toggleTheme} />
       )}
-
-      {/* --- Decorative Elements (Rendered always) --- */}
-      <div className="moon"></div>
-      <div className="tree tree1">
-        <div className="tree-foliage">
-          <div className="tree-layer tree-layer-1"></div>
-          <div className="tree-layer tree-layer-2"></div>
-          <div className="tree-layer tree-layer-3"></div>
-        </div>
-        <div className="tree-trunk"></div>
-      </div>
-      {/* Include tree2 if it exists in your CSS/original HTML */}
-      <div className="tree tree2">
-        <div className="tree-foliage">
-          <div className="tree-layer tree-layer-1"></div>
-          <div className="tree-layer tree-layer-2"></div>
-          <div className="tree-layer tree-layer-3"></div>
-        </div>
-        <div className="tree-trunk"></div>
-      </div>
-      <div className="tree tree3">
-        <div className="tree-foliage">
-          <div className="tree-layer tree-layer-1"></div>
-          <div className="tree-layer tree-layer-2"></div>
-          <div className="tree-layer tree-layer-3"></div>
-        </div>
-        <div className="tree-trunk"></div>
-      </div>
-      <div className="ground"></div>
-      {/* --- End Decorative Elements --- */}
     </div>
   );
 }

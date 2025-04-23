@@ -1,7 +1,7 @@
 // src/components/Creategame.js (or wherever PlayerRegistration is)
 import React, { useState, useRef } from 'react';
 // Assuming MIN_PLAYERS and game object are defined/imported elsewhere
-const MIN_PLAYERS = 1; // Example minimum players
+const MIN_PLAYERS = 6; // Example minimum players
 const game = { // Mock game object
   SetPlayerNames: (names) => console.log("Setting player names:", names),
   Start: () => console.log("Game logic started."),
@@ -71,9 +71,38 @@ function PlayerRegistration({ onStartGame }) { // Added onStartGame prop
   // *** This component should only render the registration specific parts ***
   return (
     <> {/* Use Fragment */}
+     <div className="moon"></div>
+
+{/* Improved Trees */}
+<div className="tree tree1">
+  <div className="tree-foliage">
+    <div className="tree-layer tree-layer-1"></div>
+    <div className="tree-layer tree-layer-2"></div>
+    <div className="tree-layer tree-layer-3"></div>
+  </div>
+  <div className="tree-trunk"></div>
+</div>
+
+<div className="tree tree2">
+  <div className="tree-foliage">
+    <div className="tree-layer tree-layer-1"></div>
+    <div className="tree-layer tree-layer-2"></div>
+  </div>
+  <div className="tree-trunk"></div>
+</div>
+
+<div className="tree tree3">
+  <div className="tree-foliage">
+    <div className="tree-layer tree-layer-1"></div>
+    <div className="tree-layer tree-layer-2"></div>
+    <div className="tree-layer tree-layer-3"></div>
+  </div>
+  <div className="tree-trunk"></div>
+</div>
+<div className="ground"></div>
+
       {/* Game Title */}
       <div className="game-title">
-        <h1>WEREWOLF</h1>
         <h2>PLAYER REGISTRATION</h2>
       </div>
 

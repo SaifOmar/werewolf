@@ -115,6 +115,28 @@ function Timer() {
 
   return (
     <>
+      <div className="moon"></div>
+
+      {/* Improved Trees */}
+      <div className="tree tree1">
+        <div className="tree-foliage">
+          <div className="tree-layer tree-layer-1"></div>
+          <div className="tree-layer tree-layer-2"></div>
+          <div className="tree-layer tree-layer-3"></div>
+        </div>
+        <div className="tree-trunk"></div>
+      </div>
+
+      <div className="tree tree3">
+        <div className="tree-foliage">
+          <div className="tree-layer tree-layer-1"></div>
+          <div className="tree-layer tree-layer-2"></div>
+          <div className="tree-layer tree-layer-3"></div>
+        </div>
+        <div className="tree-trunk"></div>
+      </div>
+      <div className="ground"></div>
+
       {/* Timer Display SVG */}
       <div id="timer" className="base-timer"> {/* Added base-timer class */}
         <svg className="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
