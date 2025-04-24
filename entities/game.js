@@ -5,214 +5,249 @@ import { RoleFactory } from "./role.js";
 
 // why can I do this ?
 const phases = {
-	1: "nigth",
-	2: "day",
-	3: "voting",
-	4: "finished",
-	next(phase) {
-		if (phase > 3) {
-			return phases[4];
-		}
-		return phases[phase + 1];
-	},
+      1: "setup",
+      2: "night",
+      3: "day",
+      4: "voting",
+      5: "finished",
+      next(phase) {
+            if (phase > 4) {
+                  return phases[5];
+            }
+            return phases[phase + 1];
+      },
 };
 
 export class Game {
-	players = [];
-	groundCards = [];
-	playersVoted = [];
-	phase = phases[1];
-	winners = "";
-	playerNames = [];
-	playerFactory;
-	roleFactory;
-	constructor() {
-		this.playerFactory = new PlayerFactory();
-		this.roleFactory = new RoleFactory();
-	}
-	Init(numberOfplayers = 6) {
-		this.SetNumberOfPlayers(numberOfplayers);
-		this.players = this.playerFactory.GeneratePlayers(
-			this.numberOfPlayers,
-			this.playerNames,
-		);
-		this.CreatePlayerRoles();
-	}
-	SetNumberOfPlayers(numberOfPlayers) {
-		this.numberOfPlayers = numberOfPlayers;
-	}
+      players = [];
+      groundCards = [];
+      playersVoted = [];
+      phase = phases[1];
+      winners = "";
+      playerNames = [];
+      playerFactory;
+      roleFactory;
+      constructor() {
+            this.playerFactory = new PlayerFactory();
+            this.roleFactory = new RoleFactory();
+      }
+      // this resets game stats (if playing mulitble games) creates players, assigns roles and starts night pahse
+      Init(numberOfplayers = 6) {
+            this.players = [];
+            this.groundCards = [];
+            this.playersVoted = [];
+            this.phase = phases[1];
+            this.winners = "";
+            this.SetNumberOfPlayers(numberOfplayers);
+            this.players = this.playerFactory.GeneratePlayers(
+                  this.numberOfPlayers,
+                  this.playerNames,
+            );
+            this.CreatePlayerRoles();
+            this.nextPhase();
+      }
+      SetNumberOfPlayers(numberOfPlayers) {
+            this.numberOfPlayers = numberOfPlayers;
+      }
 
-	SetPlayerNames(playerNames) {
-		this.playerNames = playerNames;
-	}
+      SetPlayerNames(playerNames) {
+            this.playerNames = playerNames;
+      }
 
-	CreatePlayerRoles() {
-		this.roleFactory.CreateRoles(this.numberOfPlayers);
-		this.RandomlyAssignRoleCards();
-	}
-	StartVoting() {
-		//
-	}
-	Vote(voter, voted) {}
+      CreatePlayerRoles() {
+            this.roleFactory.CreateRoles(this.numberOfPlayers);
+            this.RandomlyAssignRoleCards();
+      }
+      // starts voting phase
+      StartVoting() {
+            this.nextPhase();
+            if (this.phase !== "vote") {
+                  throw new Error(`Trying to vote in ${this.phase} phase`);
+            }
+      }
+      // dont need if we need this now
+      Vote(voter, voted) {}
 
-	StartGame() {
-		this.phase = phases[1];
-	}
+      // starts day // need to know the day will go
+      StartGame() {
+            this.nextPhase();
+            if (this.phase !== "day") {
+                  throw new Error(
+                        `Phase should be day instead have ${this.phase}`,
+                  );
+            }
+      }
 
-	FinishGame(winners) {
-		// do other related game finishing logic
-		this.winners = winners;
-	}
-	RandomlyAssignRoleCards() {
-		this.groundCards = [];
+      FinishGame(winners) {
+            this.winners = winners;
+            this.nextPhase();
+            if (this.phase === "finished") {
+                  for (const p of this.players) {
+                        p.isRevealed = true;
+                  }
+            } else {
+                  throw new Error(
+                        `Phase should be finished instead have ${this.phase}`,
+                  );
+            }
+      }
+      // assigns both player cards and ground cards
+      RandomlyAssignRoleCards() {
+            this.groundCards = [];
 
-		const allRoles = this.roleFactory.createdRoles || [];
-		if (allRoles.length < this.players.length) {
-			throw new Error("Not enough roles for all players");
-		}
+            const allRoles = this.roleFactory.createdRoles || [];
+            if (allRoles.length < this.players.length) {
+                  throw new Error("Not enough roles for all players");
+            }
 
-		this.roleFactory.Shuffle();
-		const map = new Map();
-		for (let idx = 0; idx < this.players.length; idx++) {
-			const player = this.players[idx];
-			const role = allRoles[idx];
-			player.SetRole(role);
-			map.set(role, true);
-		}
+            this.roleFactory.Shuffle();
+            const map = new Map();
+            for (let idx = 0; idx < this.players.length; idx++) {
+                  const player = this.players[idx];
+                  const role = allRoles[idx];
+                  player.SetRole(role);
+                  map.set(role, true);
+            }
 
-		for (let idx = 0; idx < allRoles.length; idx++) {
-			const role = allRoles[idx];
-			if (!map.has(role)) {
-				this.groundCards.push(role);
-			}
-		}
-	}
-	Debug() {
-		console.log("=== GAME DEBUG START ===");
-		console.log(`Players: ${this.players.length}`);
+            for (let idx = 0; idx < allRoles.length; idx++) {
+                  const role = allRoles[idx];
+                  if (!map.has(role)) {
+                        this.groundCards.push(role);
+                  }
+            }
+      }
+      getGroundRoleCard(index) {
+            if (index < 0 || index >= this.groundCards.length) {
+                  throw new Error(
+                        `Invalid ground card index: ${index}. Available range: 0-${this.groundCards.length - 1}`,
+                  );
+            }
 
-		for (let p of this.players) {
-			console.log(
-				`\nPlayer: ${p.name} (Role: ${p.GetRole().roleName})`,
-			);
+            return this.groundCards[index];
+      }
+      findPlayer(playerId) {
+            const player = this.players.find(
+                  (player) => player.id === playerId,
+            );
 
-			const args = this.createDebugArgs(p);
+            if (player) {
+                  return player;
+            }
 
-			try {
-				const results = p
-					.GetRole()
-					.effect.doEffect(p, this, args);
-				console.log(
-					`Effect results: ${JSON.stringify(results, null, 2)}`,
-				);
-			} catch (error) {
-				console.error(
-					`Error executing effect for ${p.name}: ${error.message}`,
-				);
-			}
-		}
+            throw new Error(`Player with ID ${playerId} not found`);
 
-		console.log("\n=== GROUND CARDS ===");
-		for (let i = 0; i < this.groundCards.length; i++) {
-			console.log(
-				`Card ${i}: ${this.groundCards[i].roleName}, there are this many cards on the ground ${this.groundCards.length} , and there are ${this.players.length} players, and these are all the roles ${this.roleFactory.createdRoles.length}`,
-			);
+            // return null;
+      }
 
-			// console.log(`Card hi ${i}: ${this.roleFactory.createdRoles}`);
-		}
+      // this will be used to automatically change the phase
+      nextPhase() {
+            this.phase = phases.next(this.phase);
+      }
 
-		console.log("\n=== GAME DEBUG END ===");
-	}
+      Debug() {
+            console.log("=== GAME DEBUG START ===");
+            console.log(`Players: ${this.players.length}`);
 
-	// Helper method to create appropriate test args for each role
-	createDebugArgs(player) {
-		switch (player.GetRole().roleName) {
-			case "Seer":
-				const otherPlayers = this.players.filter(
-					(p) => p !== player,
-				);
-				if (otherPlayers.length > 0) {
-					return {
-						chosenAction: "default",
-						players: [otherPlayers[0].id],
-					};
-				}
-				// If no other players, look at ground cards
-				return {
-					chosenAction: "secondary",
-					groundCards: [
-						0,
-						this.groundCards.length > 1 ? 1 : 0,
-					],
-				};
+            for (let p of this.players) {
+                  console.log(
+                        `\nPlayer: ${p.name} (Role: ${p.GetRole().roleName})`,
+                  );
 
-			case "Robber":
-				// For Robber, try to swap with another player
-				const targetPlayer = this.players.find(
-					(p) => p !== player,
-				);
-				return {
-					chosenAction: "default",
-					players: targetPlayer ? [targetPlayer.id] : [],
-				};
+                  const args = this.createDebugArgs(p);
 
-			case "TroubleMaker":
-				// For Troublemaker, find two other players to swap
-				const availablePlayers = this.players.filter(
-					(p) => p !== player,
-				);
-				return {
-					chosenAction: "default",
-					players:
-						availablePlayers.length >= 2
-							? [
-									availablePlayers[0].id,
-									availablePlayers[1].id,
-								]
-							: [],
-				};
+                  try {
+                        const results = p
+                              .GetRole()
+                              .effect.doEffect(p, this, args);
+                        console.log(
+                              `Effect results: ${JSON.stringify(results, null, 2)}`,
+                        );
+                  } catch (error) {
+                        console.error(
+                              `Error executing effect for ${p.name}: ${error.message}`,
+                        );
+                  }
+            }
 
-			case "Drunk":
-				// For Drunk, swap with a random ground card
-				return {
-					chosenAction: "default",
-					groundCards: [
-						Math.floor(
-							Math.random() *
-								this.groundCards.length,
-						),
-					],
-				};
+            console.log("\n=== GROUND CARDS ===");
+            for (let i = 0; i < this.groundCards.length; i++) {
+                  console.log(
+                        `Card ${i}: ${this.groundCards[i].roleName}, there are this many cards on the ground ${this.groundCards.length} , and there are ${this.players.length} players, and these are all the roles ${this.roleFactory.createdRoles.length}`,
+                  );
 
-			default:
-				// For other roles, use default action
-				return {
-					chosenAction: "default",
-					players: [],
-					groundCards: [],
-				};
-		}
-	}
-	getGroundRoleCard(index) {
-		if (index < 0 || index >= this.groundCards.length) {
-			throw new Error(
-				`Invalid ground card index: ${index}. Available range: 0-${this.groundCards.length - 1}`,
-			);
-		}
+                  // console.log(`Card hi ${i}: ${this.roleFactory.createdRoles}`);
+            }
 
-		return this.groundCards[index];
-	}
-	findPlayer(playerId) {
-		const player = this.players.find(
-			(player) => player.id === playerId,
-		);
+            console.log("\n=== GAME DEBUG END ===");
+      }
 
-		if (player) {
-			return player;
-		}
+      // Helper method to create appropriate test args for each role
+      createDebugArgs(player) {
+            switch (player.GetRole().roleName) {
+                  case "Seer":
+                        const otherPlayers = this.players.filter(
+                              (p) => p !== player,
+                        );
+                        if (otherPlayers.length > 0) {
+                              return {
+                                    chosenAction: "default",
+                                    players: [otherPlayers[0].id],
+                              };
+                        }
+                        // If no other players, look at ground cards
+                        return {
+                              chosenAction: "secondary",
+                              groundCards: [
+                                    0,
+                                    this.groundCards.length > 1 ? 1 : 0,
+                              ],
+                        };
 
-		throw new Error(`Player with ID ${playerId} not found`);
+                  case "Robber":
+                        // For Robber, try to swap with another player
+                        const targetPlayer = this.players.find(
+                              (p) => p !== player,
+                        );
+                        return {
+                              chosenAction: "default",
+                              players: targetPlayer ? [targetPlayer.id] : [],
+                        };
 
-		// return null;
-	}
+                  case "TroubleMaker":
+                        // For Troublemaker, find two other players to swap
+                        const availablePlayers = this.players.filter(
+                              (p) => p !== player,
+                        );
+                        return {
+                              chosenAction: "default",
+                              players:
+                                    availablePlayers.length >= 2
+                                          ? [
+                                                  availablePlayers[0].id,
+                                                  availablePlayers[1].id,
+                                            ]
+                                          : [],
+                        };
+
+                  case "Drunk":
+                        // For Drunk, swap with a random ground card
+                        return {
+                              chosenAction: "default",
+                              groundCards: [
+                                    Math.floor(
+                                          Math.random() *
+                                                this.groundCards.length,
+                                    ),
+                              ],
+                        };
+
+                  default:
+                        // For other roles, use default action
+                        return {
+                              chosenAction: "default",
+                              players: [],
+                              groundCards: [],
+                        };
+            }
+      }
 }
