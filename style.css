@@ -1,0 +1,567 @@
+ /* Global Styles */
+ * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Creepster", system-ui;
+    image-rendering: pixelated;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Theme Variables */
+  :root {
+    --primary-bg: #1a1c2c;
+    --secondary-bg: #333344;
+    --button-bg: #555566;
+    --text-color: #ffffff;
+    --highlight-color: #ff5555;
+    --secondary-highlight: #ffaa55;
+    --ground-color: #5a3921;
+    --werewolf-color: #6b6b6b;
+    --werewolf-dark: #4a4a4a;
+    --villager-skin: #f1c27d;
+    --villager-skin-shadow: #d6a76c;
+    --moon-color: #f4f4f4;
+    --tree-trunk: #6e2b1a;
+    --tree-leaves: #3e8948;
+  }
+  
+  .light-theme {
+    --primary-bg: #87CEEB;
+    --secondary-bg: #f0f0f0;
+    --button-bg: #d0d0d0;
+    --text-color: #333333;
+    --highlight-color: #b22222;
+    --secondary-highlight: #ff8c00;
+    --ground-color: #8B4513;
+    --werewolf-color: #9e9e9e;
+    --werewolf-dark: #777777;
+    --villager-skin: #ffe0bd;
+    --villager-skin-shadow: #e8c6a0;
+    --moon-color: #ffcc33;
+    --tree-trunk: #8B4513;
+    --tree-leaves: #228B22;
+  }
+  
+  /* Container */
+  .game-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--primary-bg);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    padding-bottom: 140px; /* Height of ground */
+  }
+  
+  /* Game Title */
+  .game-title {
+    letter-spacing: 8px;
+    text-align: center;
+    margin-top: 5vh;
+    z-index: 5;
+    width: 100%;
+  }
+  
+  .game-title h1 {
+    color: var(--highlight-color);
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: bold;
+    text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  }
+  
+  .game-title h2 {
+    color: var(--secondary-highlight);
+    font-size: clamp(16px, 3vw, 24px);
+    margin-top: 10px;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Menu */
+  .menu-container {
+    width: min(90%, 300px);
+    background-color: var(--secondary-bg);
+    border: 4px solid #aaaaaa;
+    padding: 20px;
+    margin: 20px auto;
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 5;
+  }
+  
+  .menu-button {
+    letter-spacing: 3px;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 15px;
+    font-size: clamp(16px, 5vw, 20px);
+    cursor: pointer;
+    text-align: center;
+    border-radius: 5px;
+  }
+  
+  .menu-button:hover {
+    filter: brightness(1.2);
+    transform: scale(1.02);
+  }
+  
+  /* Ground */
+  .ground {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 140px;
+    background-color: var(--ground-color);
+    z-index: 1;
+  }
+  
+  .ground::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 20px;
+    background-color: var(--ground-color);
+    filter: brightness(1.2);
+  }
+  
+  /* Moon */
+  .moon {
+    position: absolute;
+    top: 5vh;
+    right: 10vw;
+    width: clamp(40px, 10vw, 80px);
+    height: clamp(40px, 10vw, 80px);
+    background-color: var(--moon-color);
+    border-radius: 50%;
+    z-index: 0;
+  }
+  
+  .moon::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 25%;
+    width: 25%;
+    height: 25%;
+    background-color: var(--primary-bg);
+    opacity: 0.6;
+    border-radius: 50%;
+  }
+  
+  .moon::after {
+    content: '';
+    position: absolute;
+    bottom: 20%;
+    right: 15%;
+    width: 20%;
+    height: 20%;
+    background-color: var(--primary-bg);
+    opacity: 0.6;
+    border-radius: 50%;
+  }
+  
+  /* Improved Trees */
+  .tree {
+    position: absolute;
+    bottom: 140px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tree-trunk {
+    width: clamp(20px, 3vw, 30px);
+    height: clamp(50px, 10vh, 80px);
+    background-color: var(--tree-trunk);
+  }
+  
+  .tree-foliage {
+    position: relative;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tree-layer {
+    width: 0;
+    height: 0;
+    border-left: calc(clamp(30px, 5vw, 50px)) solid transparent;
+    border-right: calc(clamp(30px, 5vw, 50px)) solid transparent;
+    border-bottom: calc(clamp(30px, 5vh, 40px)) solid var(--tree-leaves);
+    position: relative;
+    z-index: 2;
+  }
+  
+  .tree-layer-2 {
+    margin-top: -15px;
+  }
+  
+  .tree-layer-3 {
+    margin-top: -15px;
+  }
+  
+  .tree1 {
+    left: 10%;
+    transform: scale(3.9);
+  }
+  
+  .tree2 {
+    left: 30%;
+    transform: scale(1.7);
+  }
+  
+  .tree3 {
+    right: 10%;
+    transform: scale(1.4);
+  }
+  
+  @media (max-width: 768px) {
+    .tree1 {
+      left: 5%;
+    }
+    
+    .tree3 {
+      right: 5%;
+    }
+    
+    .tree2 {
+      display: none;
+    }
+  }
+  
+  /* Characters */
+  .character {
+    position: absolute;
+    bottom: 140px;
+    z-index: 2;
+  }
+  
+  .werewolf {
+    right: 15%;
+  }
+  
+  .villager {
+    left: 15%;
+  }
+  
+  @media (max-width: 768px) {
+    .werewolf {
+      right: 8%;
+      transform: scale(0.8);
+    }
+    
+    .villager {
+      left: 8%;
+      transform: scale(0.8);
+    }
+  }
+  
+  /* Improved Characters */
+  /* Werewolf Sprite */
+  .werewolf-sprite {
+    width: 80px;
+    height: 120px;
+    position: relative;
+    transform: scale(2);
+    transform-origin: bottom center;
+  }
+  
+  .werewolf-head {
+    width: 40px;
+    height: 40px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    top: 5px;
+    left: 20px;
+    border-radius: 5px;
+  }
+  
+  .werewolf-ear-left {
+    width: 12px;
+    height: 18px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    top: -10px;
+    left: 5px;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  
+  .werewolf-ear-right {
+    width: 12px;
+    height: 18px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    top: -10px;
+    right: 5px;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  
+  .werewolf-eye-left {
+    width: 8px;
+    height: 8px;
+    background-color: #ff3333;
+    position: absolute;
+    top: 18px;
+    left: 10px;
+    border-radius: 2px;
+  }
+  
+  .werewolf-eye-right {
+    width: 8px;
+    height: 8px;
+    background-color: #ff3333;
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    border-radius: 2px;
+  }
+  
+  .werewolf-snout {
+    width: 20px;
+    height: 12px;
+    background-color: var(--werewolf-dark);
+    position: absolute;
+    bottom: 0;
+    left: 10px;
+    border-radius: 0 0 5px 5px;
+  }
+  
+  .werewolf-body {
+    width: 30px;
+    height: 40px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    top: 45px;
+    left: 25px;
+  }
+  
+  .werewolf-arm-left {
+    width: 10px;
+    height: 30px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    top: 45px;
+    left: 15px;
+  }
+  
+  .werewolf-arm-right {
+    width: 10px;
+    height: 30px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    top: 45px;
+    right: 15px;
+  }
+  
+  .werewolf-leg-left {
+    width: 10px;
+    height: 35px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    bottom: 0;
+    left: 25px;
+  }
+  
+  .werewolf-leg-right {
+    width: 10px;
+    height: 35px;
+    background-color: var(--werewolf-color);
+    position: absolute;
+    bottom: 0;
+    right: 25px;
+  }
+  
+  /* Villager Sprite */
+  .villager-sprite {
+    width: 80px;
+    height: 120px;
+    position: relative;
+    transform: scale(2);
+    transform-origin: bottom center;
+  }
+  
+  .villager-head {
+    width: 40px;
+    height: 35px;
+    background-color: var(--villager-skin);
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    border-radius: 3px;
+  }
+  
+  .villager-hat {
+    width: 48px;
+    height: 15px;
+    background-color: #8b5a2b;
+    position: absolute;
+    top: 0px;
+    left: 16px;
+    border-radius: 3px 3px 0 0;
+  }
+  
+  .villager-hat-top {
+    width: 36px;
+    height: 10px;
+    background-color: #8b5a2b;
+    position: absolute;
+    top: -10px;
+    left: 22px;
+  }
+  
+  .villager-eye-left {
+    width: 6px;
+    height: 6px;
+    background-color: #000000;
+    position: absolute;
+    top: 10px;
+    left: 28px;
+  }
+  
+  .villager-eye-right {
+    width: 6px;
+    height: 6px;
+    background-color: #000000;
+    position: absolute;
+    top: 10px;
+    right: 28px;
+  }
+  
+  .villager-mouth {
+    width: 12px;
+    height: 3px;
+    background-color: #d35f5f;
+    position: absolute;
+    bottom: 10px;
+    left: 14px;
+  }
+  
+  .villager-body {
+    width: 30px;
+    height: 40px;
+    background-color: #8B4513;
+    position: absolute;
+    top: 50px;
+    left: 25px;
+  }
+  
+  .villager-arm-left {
+    width: 10px;
+    height: 30px;
+    background-color: var(--villager-skin);
+    position: absolute;
+    top: 50px;
+    left: 15px;
+  }
+  
+  .villager-arm-right {
+    width: 10px;
+    height: 30px;
+    background-color: var(--villager-skin);
+    position: absolute;
+    top: 50px;
+    right: 15px;
+  }
+  
+  .villager-leg-left {
+    width: 10px;
+    height: 30px;
+    background-color: #4a2511;
+    position: absolute;
+    bottom: 0;
+    left: 25px;
+  }
+  
+  .villager-leg-right {
+    width: 10px;
+    height: 30px;
+    background-color: #4a2511;
+    position: absolute;
+    bottom: 0;
+    right: 25px;
+  }
+  
+  /* Theme toggle */
+  .theme-toggle {
+    letter-spacing: 2px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+  }
+  
+  .toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background-color: var(--button-bg);
+    border-radius: 15px;
+    cursor: pointer;
+  }
+  
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    top: 4px;
+    left: 4px;
+    background-color: var(--moon-color);
+    transition: transform 0.3s;
+  }
+  
+  .light-theme .toggle-switch::after {
+    transform: translateX(30px);
+    background-color: #ff9933;
+  }
+  
+  .toggle-text {
+    margin-left: 10px;
+    color: var(--text-color);
+    font-size: clamp(12px, 3vw, 16px);
+  }
+  
+  a {
+    text-decoration: none;
+  }
+
+  @media (max-width: 500px) {
+    .theme-toggle {
+      top: 10px;
+      left: 10px;
+    }
+    
+    .toggle-switch {
+      width: 50px;
+      height: 25px;
+    }
+    
+    .toggle-switch::after {
+      width: 19px;
+      height: 19px;
+      top: 3px;
+      left: 3px;
+    }
+    
+    .light-theme .toggle-switch::after {
+      transform: translateX(25px);
+    }
+  }
