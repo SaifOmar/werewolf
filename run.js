@@ -1,4 +1,4 @@
-import { Game } from "./entities/game.js";
+import { Game } from "./src/game/game.js";
 
 export const game = new Game();
 

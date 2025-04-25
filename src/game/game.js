@@ -3,10 +3,7 @@
 import { PlayerFactory } from "./player.js";
 import { RoleFactory } from "./role.js";
 
-// why can I do this ?
-// con
 export class Game {
-	players = [];
 	phases = [
 		"initial",
 		"role_reveal",
@@ -16,6 +13,7 @@ export class Game {
 		"results",
 		"finished",
 	];
+	players = [];
 	groundCards = [];
 	playersVoted = [];
 	phase = 0;
@@ -43,11 +41,15 @@ export class Game {
 		this.CreatePlayerRoles();
 		this.phase = "role_reveal";
 	}
-
+	GetCurrentPhase() {
+		return this.phases[this.phase];
+	}
+	AdvacdPhase() {
+		this.phase += 1;
+	}
 	SetPlayerNames(playerNames) {
 		this.playerNames = playerNames;
 	}
-
 	CreatePlayerRoles() {
 		this.roleFactory.CreateRoles(this.numberOfPlayers);
 		this.RandomlyAssignRoleCards();
@@ -69,7 +71,6 @@ export class Game {
 		//       );
 		// }
 	}
-
 	FinishGame(winners) {
 		this.winners = winners;
 
@@ -91,6 +92,7 @@ export class Game {
 		this.groundCards = [];
 
 		const allRoles = this.roleFactory.createdRoles || [];
+		console.log(allRoles.length, this.players.length);
 		if (allRoles.length < this.players.length) {
 			throw new Error("Not enough roles for all players");
 		}

@@ -2,6 +2,7 @@ export class PlayerFactory {
 	playersArr = [];
 	constructor() {}
 	GeneratePlayers(numberOfPlayers, playerNames) {
+		this.playersArr = [];
 		for (let index = 0; index < numberOfPlayers; index++) {
 			const p = new Player(playerNames[index], index);
 			this.playersArr.push(p);
