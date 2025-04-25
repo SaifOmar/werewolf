@@ -11,7 +11,10 @@ export class PlayerFactory {
 	}
 	AddPlayer(playerName) {
 		const index = this.playersArr.length;
-		return new Player(playerName, index);
+		const p = new Player(playerName, index);
+		this.playersArr.push[p];
+		// console.log(this.playersArr);
+		return p;
 	}
 }
 

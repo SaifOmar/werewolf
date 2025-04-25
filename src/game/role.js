@@ -1,6 +1,5 @@
 import * as consts from "./consts.js";
 import { Effect } from "./effect.js";
-Effect;
 export class Role {
 	roleName;
 	team;

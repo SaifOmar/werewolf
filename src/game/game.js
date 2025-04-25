@@ -1,5 +1,3 @@
-// for sure js doesn't have fkin interfaces
-
 import { PlayerFactory } from "./player.js";
 import { RoleFactory } from "./role.js";
 
@@ -15,36 +13,168 @@ export class Game {
 	];
 	players = [];
 	groundCards = [];
-	playersVoted = [];
+	// playersVoted = [];
 	phase = 0;
 	winners = "";
 	playerNames = [];
+	timerStatus = null;
 	playerFactory;
 	roleFactory;
-	numberOfPlayers;
+	numberOfPlayers = 6;
+	currentPlayerTurnIndex = 0;
+	TIMER = 10;
+	currentNightRoleIndex = -1;
+	actionResult = null;
 	constructor() {
 		this.playerFactory = new PlayerFactory();
 		this.roleFactory = new RoleFactory();
 	}
-	// this resets game stats (if playing mulitble games) creates players, assigns roles and starts night pahse
-	Init(numberOfPlayers = 6) {
+	// this resets game stats (if playing mulitble games) creates players, assigns roles and starts role_reveal pahse
+	Init() {
 		this.players = [];
 		this.groundCards = [];
-		this.playersVoted = [];
+		this.playerVotes = new Map();
 		this.phase = 0;
 		this.winners = "";
-		this.numberOfPlayers = numberOfPlayers;
+		this.currentPlayerTurnIndex = null;
+		this.currentNightRoleIndex = -1;
+		this.actionResult = null;
 		this.players = this.playerFactory.GeneratePlayers(
 			this.numberOfPlayers,
 			this.playerNames,
 		);
 		this.CreatePlayerRoles();
-		this.phase = "role_reveal";
+		this.initVotesMap();
+		return this.StartRoleRevealPhase();
+	}
+	// set the phase to role_reveal and return the first player role data
+	StartRoleRevealPhase() {
+		this.AdvancePhase();
+		return this.GetPlayerNextRoleData();
+	}
+	StartNightPhase() {
+		this.AdvancePhase();
+		this.SortPlayersWithNightActions();
+		this.PerformNextNightAction();
+	}
+	PerformNextNightAction(args = null) {
+		if (this.currentNightRoleIndex > this.players.length) {
+			return this.StartDayPhase();
+		}
+		const p = this.players[this.currentNightRoleIndex];
+		this.currentNightRoleIndex++;
+		return p.GetOriginalRole().effect.doEffect(p, this, args);
+	}
+	StartDayPhase() {
+		this.AdvancePhase();
+		this.StartTimer();
+	}
+
+	StartTimer(timerValue = 10) {
+		this.TIMER = timerValue;
+		this.timerStatus = "Started";
+		this.timerId = setInterval(() => {
+			this.TIMER--;
+			if (this.TIMER <= 0) {
+				clearInterval(this.timerId);
+				this.timerStatus = "Stopped";
+				this.StartVotePhase();
+			}
+		}, 1000);
+	}
+	EndDayPhase() {
+		clearInterval(this.timerId);
+		this.timerStatus = "Stopped";
+	}
+	initVotesMap() {
+		for (const p of this.players) {
+			this.playerVotes.set(p.id, 0);
+		}
+		console.log(this.playerVotes);
+	}
+	// need a way to go over all players to take their votes and apply them
+	StartVotePhase() {
+		this.AdvancePhase();
+		return this.playerVotes;
+	}
+	DetermineWinners() {
+		let maxVotes = 0;
+		let votedPlayerId = null;
+		for (const [id, votes] of this.playerVotes) {
+			if (votes > maxVotes) {
+				maxVotes = votes;
+				votedPlayerId = id;
+			}
+		}
+		const votedPlayer = this.findPlayer(votedPlayerId);
+		if (votedPlayer.GetRole().team === "Villians") {
+			return "Villagers";
+		}
+		return "Werewolves";
+	}
+	Vote(votedId) {
+		let currentVotes = this.playerVotes.get(votedId) || 0;
+		this.playerVotes.set(votedId, currentVotes + 1);
+	}
+	ShowResults() {
+		this.AdvancePhase();
+	}
+	SortPlayersWithNightActions() {
+		/// loop over all players with the role in order
+		// if the player is the same role as the role put him into the array
+		// at the end set the players array to be the new array
+
+		const roles = [
+			"Werewolf",
+			"Minion",
+			"Masion",
+			"Seer",
+			"Robber",
+			"Trouble Maker",
+			"Drunk",
+		];
+
+		let tempArr = [];
+
+		for (const role of roles) {
+			const players = this.players.filter(
+				(p) => p.GetRole().roleName == role,
+			);
+			tempArr.push(...players);
+		}
+
+		this.players = tempArr;
+	}
+	GetPlayerNextRoleData() {
+		if (this.currentPlayerTurnIndex == null) {
+			this.currentPlayerTurnIndex = 0;
+			return this.players[this.currentPlayerTurnIndex];
+		}
+		if (this.currentPlayerTurnIndex == this.players.length - 1) {
+			return this.StartNightPhase();
+		}
+		this.currentPlayerTurnIndex++;
+		return this.players[this.currentPlayerTurnIndex];
+	}
+
+	// takes an array or player names
+	AddMorePlayers(morePlayersArray) {
+		try {
+			for (const p of morePlayersArray) {
+				this.numberOfPlayers++;
+				let player = this.playerFactory.AddPlayer(p);
+				console.log(
+					`a player was added ${player.name}, this is the current number of players ${this.numberOfPlayers}`,
+				);
+			}
+		} catch (error) {
+			throw new Error(`Couldn't add player\\s, ${error}`);
+		}
 	}
 	GetCurrentPhase() {
 		return this.phases[this.phase];
 	}
-	AdvacdPhase() {
+	AdvancePhase() {
 		this.phase += 1;
 	}
 	SetPlayerNames(playerNames) {
@@ -54,39 +184,27 @@ export class Game {
 		this.roleFactory.CreateRoles(this.numberOfPlayers);
 		this.RandomlyAssignRoleCards();
 	}
+
 	// starts voting phase
-	StartVoting() {
-		// if (this.phase !== "vote") {
-		//       throw new Error(`Trying to vote in ${this.phase} phase`);
-		// }
-	}
-	// dont need if we need this now
-	Vote(voter, voted) {}
+	// StartVoting() {
+	// 	// if (this.phase !== "vote") {
+	// 	//       throw new Error(`Trying to vote in ${this.phase} phase`);
+	// 	// }
+	// }
+
+	// it takes the voted player id and adds one vote to his name, to be later checked which player has the most votes to determine which team wins
 
 	// starts day // need to know the day will go
-	StartGame() {
-		// if (this.phase !== "day") {
-		//       throw new Error(
-		//             `Phase should be day instead have ${this.phase}`,
-		//       );
-		// }
-	}
-	FinishGame(winners) {
-		this.winners = winners;
 
+	//
+	FinishGame() {
+		this.AdvancePhase();
 		for (const p of this.players) {
 			p.isRevealed = true;
 		}
-		if (this.phase === "finished") {
-			for (const p of this.players) {
-				p.isRevealed = true;
-			}
-		} else {
-			throw new Error(
-				`Phase should be finished instead have ${this.phase}`,
-			);
-		}
+		return this.DetermineWinners();
 	}
+
 	// assigns both player cards and ground cards
 	RandomlyAssignRoleCards() {
 		this.groundCards = [];
