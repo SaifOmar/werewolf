@@ -1,0 +1,19 @@
+import React from 'react';
+
+function PlayerInput({ index, value, onChange }) {
+  return (
+    <div>
+      <label htmlFor={`player-${index}`}>Player {index + 1}: </label>
+      <input
+        type="text"
+        id={`player-${index}`}
+        value={value}
+        onChange={(e) => onChange(index, e.target.value)}
+        placeholder={`Enter name for Player ${index + 1}`}
+        required={index < 6} // Example: require first 6
+      />
+    </div>
+  );
+}
+
+export default PlayerInput;
