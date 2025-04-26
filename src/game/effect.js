@@ -12,11 +12,11 @@ export class Effect {
 	//
 	actionStringToFunction(player, game, args) {
 		// Using the player's role name to determine the action
-		switch (player.GetRole().roleName) {
+		switch (player.GetOriginalRole().roleName) {
 			case "Werewolf":
 				// Werewolves can see other werewolves
 				const AllWerewolves = game.players.filter(
-					(p) => p.GetRole().roleName === "Werewolf",
+					(p) => p.GetOriginalRole().roleName === "Werewolf",
 				);
 				this.save(player);
 				return AllWerewolves;
@@ -24,7 +24,7 @@ export class Effect {
 			case "Maison":
 				// Masons can see other masons
 				const AllMaisons = game.players.filter(
-					(p) => p.GetRole().roleName === "Maison",
+					(p) => p.GetOriginalRole().roleName === "Maison",
 				);
 				this.save(player);
 				return AllMaisons;
@@ -34,7 +34,7 @@ export class Effect {
 					// Look at one player's card
 					const player2 = game.findPlayer(args.players[0]);
 					this.save(player);
-					return [player2.GetRole()];
+					return [player2, player2.GetRole()];
 				} else if (args.chosenAction === "secondary") {
 					// Look at two cards in the center
 					const g1 = game.getGroundRoleCard(
@@ -71,15 +71,17 @@ export class Effect {
 					this.save(player);
 					return [player2, player1];
 				}
+				console.warn("Troublemaker action called with invalid args:", args);
 				return [];
 
 			case "Drunk":
 				if (args.chosenAction === "default") {
 					// Swap with a card from the center (but don't see it)
-					const card = game.getGroundRoleCard(
+					let card = game.getGroundRoleCard(
 						args.groundCards[0],
 					);
-					player.ChangeRole(card);
+					let swap = player.ChangeRole(card);
+					game.setGroundCard(args.groundCards[0], swap)
 					this.save(player);
 					return [player.GetRole().roleName];
 				}
@@ -88,7 +90,7 @@ export class Effect {
 			case "Minion":
 				// Minions can see who the werewolves are
 				const werewolves = game.players.filter(
-					(p) => p.GetRole().roleName === "Werewolf",
+					(p) => p.GetOriginalRole().roleName === "Werewolf",
 				);
 				this.save(player);
 				return werewolves;
@@ -98,7 +100,7 @@ export class Effect {
 				this.save(player);
 				return [player.GetRole()];
 
-			case "Doppelganger":
+			case "Clone":
 				if (args.chosenAction === "default") {
 					// Copies another player's role and performs their night action
 					const player2 = game.findPlayer(args.players[0]);
@@ -129,16 +131,16 @@ export class Effect {
 	doEffect(player, game, args = {}) {
 		// console.log(args, "debug args");
 		// Check if the action matches this effect
-		if (this.action !== player.GetOriginalRole().effect.action) {
-			console.log(
-				`this is the action ${this.action}, this is the action comeing from role${player.GetOriginalRole().effect.action}`,
-			);
-			return {
-				success: false,
-				message: "Role mismatch",
-				results: [],
-			};
-		}
+		// if (this.action !== player.GetOriginalRole().effect.action) {
+		// 	console.log(
+		// 		`this is the action ${this.action}, this is the action comeing from role${player.GetOriginalRole().effect.action}`,
+		// 	);
+		// 	return {
+		// 		success: false,
+		// 		message: "Role mismatch",
+		// 		results: [],
+		// 	};
+		// }
 
 		try {
 			const results = this.actionStringToFunction(
@@ -149,7 +151,7 @@ export class Effect {
 
 			return {
 				success: true,
-				message: `${player.GetRole().roleName} performed ${this.effectName}`,
+				message: `${player.GetOriginalRole().roleName} performed ${this.effectName}`,
 				results,
 			};
 		} catch (error) {

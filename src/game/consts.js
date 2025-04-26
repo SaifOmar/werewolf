@@ -29,7 +29,7 @@ const rolesJson = `[
     "effect":{"effectName":"ninjaHeist",
     "action": "he swaps his robber card with someone else's card and become the new role he took"}},
 
-    {"roleName": "Trouble Maker",
+    {"roleName": "TroubleMaker",
     "team": "GoodGuys",
     "description": "He's making a scene all over the place!",
     "effect":{"effectName":"switcharoo",

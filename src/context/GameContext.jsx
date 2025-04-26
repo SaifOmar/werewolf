@@ -52,7 +52,7 @@ export const GameProvider = ({ children }) => {
       };
     }
     return {
-      phase: game.phase, // Raw phase from game logic
+      phase: game.GetCurrentPhase(), // Raw phase from game logic
       players: [...game.players],
       groundCards: [...game.groundCards],
       winners: game.winners, // Raw winners from game logic

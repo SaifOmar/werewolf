@@ -130,7 +130,7 @@ export class Game {
 			"Masion",
 			"Seer",
 			"Robber",
-			"Trouble Maker",
+			"TroubleMaker",
 			"Drunk",
 		];
 
@@ -163,6 +163,7 @@ export class Game {
 			for (const p of morePlayersArray) {
 				this.numberOfPlayers++;
 				let player = this.playerFactory.AddPlayer(p);
+				this.playerNames.push(p);
 				console.log(
 					`a player was added ${player.name}, this is the current number of players ${this.numberOfPlayers}`,
 				);
@@ -240,6 +241,11 @@ export class Game {
 
 		return this.groundCards[index];
 	}
+
+	setGroundCard(index, role) {
+        this.groundCards[index] = role;
+    }
+
 	findPlayer(playerId) {
 		const player = this.players.find(
 			(player) => player.id === playerId,
@@ -259,17 +265,16 @@ export class Game {
 	Debug() {
 		console.log("=== GAME DEBUG START ===");
 		console.log(`Players: ${this.players.length}`);
-
 		for (let p of this.players) {
 			console.log(
 				`\nPlayer: ${p.name} (Role: ${p.GetRole().roleName})`,
 			);
 
 			const args = this.createDebugArgs(p);
-
+			
 			try {
 				const results = p
-					.GetRole()
+				.GetRole()
 					.effect.doEffect(p, this, args);
 				console.log(
 					`Effect results: ${JSON.stringify(results, null, 2)}`,
@@ -280,19 +285,23 @@ export class Game {
 				);
 			}
 		}
-
+		for(const p of this.players){
+			console.log(`this is player: ${p.name}, his original role is ${p.GetOriginalRole().roleName} and his new role is ${p.GetRole().roleName}`)
+		}
+		
 		console.log("\n=== GROUND CARDS ===");
 		for (let i = 0; i < this.groundCards.length; i++) {
 			console.log(
 				`Card ${i}: ${this.groundCards[i].roleName}, there are this many cards on the ground ${this.groundCards.length} , and there are ${this.players.length} players, and these are all the roles ${this.roleFactory.createdRoles.length}`,
 			);
-
+			console.log(`ground cards: ${this.groundCards.length} and ${this.roleFactory.createdRoles.length}`)
+			console.log(this.roleFactory.NumberOfRoles);
 			// console.log(`Card hi ${i}: ${this.roleFactory.createdRoles}`);
 		}
-
+		
 		console.log("\n=== GAME DEBUG END ===");
 	}
-
+	
 	// Helper method to create appropriate test args for each role
 	createDebugArgs(player) {
 		switch (player.GetRole().roleName) {
