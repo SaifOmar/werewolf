@@ -1,5 +1,5 @@
 const rolesJson = `[
-    {"roleName": "Werewolf",
+  {"roleName": "Werewolf",
     "team": "Villians",
     "description": "He's the devil that when villagers vote on, they win",
     "effect":{"effectName":"silentHowl",
@@ -39,14 +39,84 @@ const rolesJson = `[
     "team": "GoodGuys",
     "description": "He is a weirdo moving around here and there doing something but drinking and acting strange not even remembering who he's",
     "effect":{"effectName":"oopsIClickedIt",
-    "action": "He swaps his drunk card with one of the cards on the ground he chooses but he doesn't know it tho"}}
+    "action": "He swaps his drunk card with one of the cards on the ground he chooses but he doesn't know it tho"}},
+
+  {
+    "roleName": "Clone",
+    "team": "GoodGuys",
+    "description": "He's YOU but probably better.",
+    "effect":{
+    "effectName":"MirrorImage",
+    "action": "At night, he looks at one player and copies their role, becoming that role for the rest of the game."
+    }
+  },
+
+  {
+    "roleName": "Joker",
+    "team": "Neutral",
+    "description": "He hates his job, hates everyone, just wants to die!",
+    "effect": {
+    "effectName": "SelfDestruct",
+    "action": "If Joker gets voted out, he wins and no one else!"
+    }
+  },
+
+  {
+    "roleName": "Insominac",
+    "team": "GoodGuys",
+    "description": "In a toxic relationship with his bed so that he finds out the painful truth.",
+    "effect": {
+    "effectName": "CaffeinePoweredSpy",
+    "action": "He wakes up at the end of the night phase to know his new role if changed"
+    }
+  },
+
+  {
+    "roleName": "MysticWolf",
+    "team": "Villians",
+    "description": "She's beauty, she's grace, she'll stare right into your face...then destroy your village.",
+    "effect": {
+    "effectName": "SniffingSecrets",
+    "action": "He's a Werewolf but basically a Seer too"
+    }
+  },
+  {
+    "roleName": "Witch",
+    "team": "GoodGuys",
+    "description": "Spin the bottle, literally. The Witch can either save someone with a magical 'here's a chance' potion or send someone to the grave with her 'oops' potion.",
+    "effect": {
+    "effectName": "PotionRoulette",
+    "action": "She chooses a card from the ground cards to see and give to someone she decides to give it to."
+    }
+  },
+  {
+    "roleName": "DreamWolf",
+    "team": "Villians",
+    "description": "Lucid dreams that feel more real than reality itself. these dreams are filled with lies, designed to confuse and mislead their victims into doubting their own perceptions.",
+    "effect": {
+    "effectName": "LucidLiar",
+    "action": "He's a Werewolf but wakes up alone to mislead and distract other villagers from truth, not even werewolves know about him."
+    }
+  },
+  {
+    "roleName": "Sentinel",
+    "team": "GoodGuys",
+    "description": "Like Batman, but with better sleep schedules and less brooding.",
+    "effect": {
+    "effectName": "CapedGuard",
+    "action": "He chooses someone to guard him from any effect going on him."
+    }
+  }
   ]`;
 
 const teamJson = `{
-    "Villians": "Werewolf",
-    "GoodGuys": "Villagers"
+    "Villians": "Werewolves",
+    "GoodGuys": "Villagers",
+    "Neutral": "Joker"
   }`;
 
 export const roles = JSON.parse(rolesJson);
 
 export const teams = JSON.parse(teamJson);
+
+

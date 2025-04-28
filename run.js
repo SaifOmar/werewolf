@@ -11,6 +11,7 @@ game.Debug();
 
 setTimeout(() => {
     game.AddMorePlayers(["a7a"]);
+    // game.AddMorePlayers(["lag"]);
     game.Init()
     game.Debug()
     }, 5000);
@@ -19,7 +20,6 @@ setTimeout(() => {
 
 
 
-// game.AddMorePlayers(["lag"]);
 // game.AddMorePlayers(["lalaland"]);
 
 // console.log(game.playerVotes);
