@@ -1,0 +1,13 @@
+/* background for the whole page */
+.background-wrapper {
+	min-height: 100vh;
+	width: 100vw; /* <- this is important! FULL screen width */
+	background: url("zby.webp") no-repeat center center;
+	background-size: 100% 100%;
+	display: flex;
+	justify-content: center; /* center your app horizontally */
+	align-items: center; /* center your app vertically */
+}
+.background {
+	background-color: #1c1c1c;
+}

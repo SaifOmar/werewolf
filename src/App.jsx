@@ -1,73 +1,72 @@
 // // // src/App.jimport React from 'react';
-import { useGame } from './context/useGame'; // Corrected import path
-import { GameProvider } from './context/GameContext'; // Corrected import path
-import StartScreen from './screens/StartScreen';
-import PlayerSetupScreen from './screens/PlayerSetupScreen';
-import RoleRevealScreen from './screens/RoleRevealScreen';
-import NightPhaseScreen from './screens/NightPhaseScreen';
-import DayDiscussionScreen from './screens/DayDiscussionScreen'; // Added
-import VotingScreen from './screens/VotingScreen';
-import ResultsScreen from './screens/ResultsScreen';
-import LoadingScreen from './screens/LoadingScreen';
-import './App.css';
+import { useGame } from "./context/useGame"; // Corrected import path
+import { GameProvider } from "./context/GameContext"; // Corrected import path
+import StartScreen from "./screens/StartScreen";
+import PlayerSetupScreen from "./screens/PlayerSetupScreen";
+import RoleRevealScreen from "./screens/RoleRevealScreen";
+import NightPhaseScreen from "./screens/NightPhaseScreen";
+import DayDiscussionScreen from "./screens/DayDiscussionScreen"; // Added
+import VotingScreen from "./screens/VotingScreen";
+import ResultsScreen from "./screens/ResultsScreen";
+import LoadingScreen from "./screens/LoadingScreen";
+import "./App.css";
 
 function CurrentScreen() {
-  const { gameState } = useGame();
+	const { gameState } = useGame();
 
-  if (gameState.isLoading) {
-    return <LoadingScreen />;
-  }
-  // console.log(gameState)
+	if (gameState.isLoading) {
+		return <LoadingScreen />;
+	}
+	// console.log(gameState)
 
-  // Add Error Display
-  if (gameState.errorMessage) {
-    // Provide a way to dismiss error or reset
-    return (
-      <div className="error-message">
-        Error: {gameState.errorMessage}
-        {/* <button onClick={() => updateGameState({ errorMessage: null })}>Dismiss</button> */}
-        {/* Or a reset button */}
-      </div>
-    );
-  }
-  // console.log("Current gameState.phase:", gameState.phase, "Type:", typeof gameState.phase);
-  // console.log('before starting')
-  switch (gameState.phase) {
-    case 'initial':
-      return <StartScreen />;
-    // case 'setup': // Should transition quickly, maybe just show loading or setup directly
-    //   return <PlayerSetupScreen />;
-    case 'role_reveal':
-      return <RoleRevealScreen />;
-    case 'night':
-      return <NightPhaseScreen />;
-    case 'day_discussion':
-      return <DayDiscussionScreen />; // New screen for timer
-    case 'voting':
-      return <VotingScreen />;
-    case 'results': // Final results display
-      return <ResultsScreen />;
-    case 'finished': // Legacy state, map to results
-      console.warn("Mapping 'finished' phase to 'results'");
-      return <ResultsScreen />;
-    default:
-      console.warn("Unknown game phase:", gameState.phase);
-      return <StartScreen />; // Fallback
-  }
+	// Add Error Display
+	if (gameState.errorMessage) {
+		// Provide a way to dismiss error or reset
+		return (
+			<div className="error-message">
+				Error: {gameState.errorMessage}
+				{/* <button onClick={() => updateGameState({ errorMessage: null })}>Dismiss</button> */}
+				{/* Or a reset button */}
+			</div>
+		);
+	}
+	// console.log("Current gameState.phase:", gameState.phase, "Type:", typeof gameState.phase);
+	// console.log('before starting')
+	switch (gameState.phase) {
+		case "initial":
+			return <StartScreen />;
+		// case 'setup': // Should transition quickly, maybe just show loading or setup directly
+		//   return <PlayerSetupScreen />;
+		case "role_reveal":
+			return <RoleRevealScreen />;
+		case "night":
+			return <NightPhaseScreen />;
+		case "day_discussion":
+			return <DayDiscussionScreen />; // New screen for timer
+		case "voting":
+			return <VotingScreen />;
+		case "results": // Final results display
+			return <ResultsScreen />;
+		case "finished": // Legacy state, map to results
+			console.warn("Mapping 'finished' phase to 'results'");
+			return <ResultsScreen />;
+		default:
+			console.warn("Unknown game phase:", gameState.phase);
+			return <StartScreen />; // Fallback
+	}
 }
 
 function App() {
-  return (
-    <GameProvider>
-      <div className="app-container">
-        <h1>One Night Ultimate Werewolf</h1>
-        <CurrentScreen />
-      </div>
-    </GameProvider>
-  );
+	return (
+		<GameProvider>
+			<div className="background-wrapper">
+				<CurrentScreen />
+			</div>
+		</GameProvider>
+	);
 }
 
-export default App
+export default App;
 // import React, { useState } from 'react';
 // import { Game } from "./game/game.js"
 // import PlayerRegistration from './components/PlayerRegistration'; // Adjust path if needed
