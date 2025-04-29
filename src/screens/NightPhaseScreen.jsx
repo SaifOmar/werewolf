@@ -20,7 +20,7 @@ function NightPhaseScreen() {
 	const [actionSubmitted, setActionSubmitted] = useState(false); // Track if action for *this role step* is done
 	const [actionType, setActionType] = useState(""); // left the state up so i can get better progress than just plain Json
 	const currentRoleIndex = gameState.currentNightRoleIndex;
-	console.log(`this is the current night role index ${currentRoleIndex}`);
+	// console.log(`this is the current night role index ${currentRoleIndex}`);
 
 	useEffect(() => {
 		// Reset submission state when the role index changes
@@ -82,26 +82,41 @@ function NightPhaseScreen() {
 				gameState.actionResult.results?.map(
 					(item) => item?.roleName || item?.name || item
 				) || "OK";
+
+			const isPlayerPeek =
+				gameState.actionResult.results &&
+				gameState.actionResult.results.length === 2 &&
+				gameState.actionResult.results[0]?.name && // Player
+				gameState.actionResult.results[1]?.roleName; // Role
+
+			const isGroundPeek =
+				gameState.actionResult.results &&
+				gameState.actionResult.results.length === 2 &&
+				gameState.actionResult.results[0]?.roleName &&
+				gameState.actionResult.results[1]?.roleName;
 			return (
 				<div className="action-container">
 					<h4>Action Result for {activeRoleName}:</h4>
 					{/* Be careful about revealing too much info here depending on role */}
 					{/* <p> You are now a ➡ {resultToShow}</p> */}
 					{/* //!------- Seer Action */}
-					{actionType === "player" && (
+
+					<div className="title">
+						{isPlayerPeek && (
+							<div className="title">
+								Player {gameState.actionResult.results[0].name} is a{" "}
+								{gameState.actionResult.results[1].roleName}
+							</div>
+						)}
+					</div>
 						<div className="title">
-							Player {""}
-							{resultToShow[0].toUpperCase()} {""}
-							is a {resultToShow[1]}
+						{isGroundPeek && (
+							<div className="title">
+								The first card you choose is <span style={{color : "#9f1b3c"}}> {gameState.actionResult.results[0].roleName} </span> and the second one is{" "}
+								<span style={{color : "#9f1b3c"}}> {gameState.actionResult.results[1].roleName} </span>
+							</div>
+						)}
 						</div>
-					)}
-					{actionType === "ground" && (
-						<div className="title">
-							There are a {""}
-							{resultToShow[0]} and a {""}
-							{resultToShow[1]} on the ground
-						</div>
-					)}
 					{/* //!-----Robber Action */}
 					{activeRoleName === "Robber" && (
 						<div className="title">
@@ -230,10 +245,10 @@ function NightPhaseScreen() {
 				{renderActionComponent()}
 				{/* Optional: Add a general "Force Next Role" button for the judge if someone gets stuck */}
 				{/* <button onClick={advanceNightAction} style={{backgroundColor: '#ffc107', color: 'black'}}>Judge: Force Next</button> */}
-				<div class="line topl"></div>
-				<div class="line leftl"></div>
-				<div class="line bottoml"></div>
-				<div class="line rightl"></div>
+				<div className="line topl"></div>
+				<div className="line leftl"></div>
+				<div className="line bottoml"></div>
+				<div className="line rightl"></div>
 			</div>
 		</div>
 	);

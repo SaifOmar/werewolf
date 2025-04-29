@@ -106,13 +106,18 @@ export class Game {
 				votedPlayerId = id;
 			}
 		}
+		console.log("Werewolves alive:", werewolvesAlive);
+		console.log("Villagers alive:", villagersAlive);
+		
 		const votedPlayer = this.findPlayer(votedPlayerId);
 		if (votedPlayer.GetRole().team === "Villians") {
 			return "Villagers";
 		}
 		return "Werewolves";
+
+
 	}
-	Vote(votedId) {
+	CastVotes(votedId) {
 		let currentVotes = this.playerVotes.get(votedId) || 0;
 		this.playerVotes.set(votedId, currentVotes + 1);
 	}
@@ -203,7 +208,9 @@ export class Game {
 		for (const p of this.players) {
 			p.isRevealed = true;
 		}
-		return this.DetermineWinners();
+		this.winners = this.DetermineWinners();
+		console.log("Game winners determined:", this.winners); // Add this debug line
+		return this.winners;
 	}
 
 	// assigns both player cards and ground cards

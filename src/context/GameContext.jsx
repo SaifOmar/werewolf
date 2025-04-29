@@ -81,7 +81,7 @@ export const GameProvider = ({ children }) => {
 			if (
 				gameInstanceRef.current &&
 				gameInstanceRef.current.playerNames.length ===
-					playerNames.length
+				playerNames.length
 			) {
 				return;
 			}
@@ -123,7 +123,7 @@ export const GameProvider = ({ children }) => {
 			if (
 				gameInstanceRef.current &&
 				nextPlayerIndex <
-					gameInstanceRef.current.numberOfPlayers
+				gameInstanceRef.current.numberOfPlayers
 			) {
 				return {
 					...prev,
@@ -192,7 +192,7 @@ export const GameProvider = ({ children }) => {
 				if (!result.success) {
 					throw new Error(
 						result.message ||
-							`Action failed for ${role.roleName}`
+						`Action failed for ${role.roleName}`
 					);
 				}
 
@@ -261,7 +261,7 @@ export const GameProvider = ({ children }) => {
 				if (
 					gameInstanceRef.current &&
 					nextVoterIndex <
-						gameInstanceRef.current.players.length
+					gameInstanceRef.current.players.length
 				) {
 					// Move to next voter
 					return {
@@ -290,14 +290,6 @@ export const GameProvider = ({ children }) => {
 		// if (!game || Object.keys(votes).length !== game.players.length) {
 		// 	return "Error";
 		// }
-
-		game.players.forEach((p) => {
-			console.log(
-				`- ${p.name}: Final Role: ${
-					p.GetRole()?.roleName
-				}, Original: ${p.GetOriginalRole()?.roleName}`
-			);
-		});
 
 		// ** ---------- THIS IS THE CRITICAL LOGIC YOU NEED TO IMPLEMENT ---------- **
 		// Based on One Night Ultimate Werewolf rules:
@@ -337,7 +329,6 @@ export const GameProvider = ({ children }) => {
 			.filter(([id, count]) => count === maxVotes)
 			.map(([id]) => parseInt(id)); // Ensure IDs are numbers if needed
 
-		let winnerTeam = ""; // Default placeholder
 
 		// Example snippet (incomplete):
 		let werewolfKilled = false;
@@ -351,31 +342,44 @@ export const GameProvider = ({ children }) => {
 			const role = player.GetRole()
 
 			if (team === "Villians" && role.roleName !== "Minion") {
-				// Use team name/type
 				werewolfKilled = true;
-			} else if (team === "GoodGuys") {
+				console.log(`Werewolf killed: ${player.name}`);
+			} else if (team === "GoodGuys" || role.roleName === "Minion") {
 				villagerKilled = true;
-			} else if (team === "Neutral"){
+				console.log(`Villager killed: ${player.name} and his role was ${role.roleName}`);
+			} else if (team === "Neutral") {
 				jokerKilled = true;
+				console.log(`Joker killed: ${player.name}`);
 			}
 			// Add Tanner, Hunter checks here
 		});
 		game.players.forEach((p) => {
-			if (p.GetRole()?.team === "Werewolf")
+			const role = p.GetRole();
+			if (role && (role.team === "Villians" || role.team === "Werewolf") && role.roleName !== "Minion") {
 				werewolfExists = true;
+			}
 		});
+
+		console.log("Game state check - werewolfKilled:", werewolfKilled, 
+			"villagerKilled:", villagerKilled, 
+			"werewolfExists:", werewolfExists, 
+			"jokerKilled:", jokerKilled);
+
+
+			let winnerTeam = ""; // Default placeholder
+
 
 		if (jokerKilled) {
 			winnerTeam = "Joker Wins Alone!";
-		  } else if (werewolfKilled) {
+		} else if (werewolfKilled) {
 			winnerTeam = "Villager Team";
-		  } else if (werewolfExists && !villagerKilled) {
+		} else if (werewolfExists && !villagerKilled) {
 			winnerTeam = "Werewolf Team";
-		  } else if (!werewolfExists && villagerKilled) {
+		} else if (!werewolfExists && villagerKilled) {
 			winnerTeam = "Werewolf Team (by default)";
-		  } else {
+		} else {
 			winnerTeam = "Draw,Undetermined";
-		  }
+		}
 		// ** THIS PLACEHOLDER IS VERY INCOMPLETE - REPLACE WITH FULL RULES **
 
 		// Reveal all cards at the end
@@ -391,7 +395,7 @@ export const GameProvider = ({ children }) => {
 	}, [gameState.playerVotes, updateGameState, getCurrentGameData]);
 
 	useEffect(() => {
-		if (gameState.phase === "results" && gameState.winners === null) {	
+		if (gameState.phase === "results" && gameState.winners === null) {
 			determineWinner();
 			setTimeout(() => {
 				const game = gameInstanceRef.current;

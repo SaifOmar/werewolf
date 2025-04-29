@@ -12,7 +12,7 @@ export class PlayerFactory {
 	AddPlayer(playerName) {
 		const index = this.playersArr.length;
 		const p = new Player(playerName, index);
-		this.playersArr.push[p];
+		this.playersArr.push(p);
 		// console.log(this.playersArr);
 		return p;
 	}
