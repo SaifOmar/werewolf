@@ -18,7 +18,7 @@ function NightPhaseScreen() {
 		NIGHT_ACTION_ORDER,
 	} = useGame();
 	const [actionSubmitted, setActionSubmitted] = useState(false); // Track if action for *this role step* is done
-
+	const [actionType, setActionType] = useState(""); // left the state up so i can get better progress than just plain Json
 	const currentRoleIndex = gameState.currentNightRoleIndex;
 	console.log(`this is the current night role index ${currentRoleIndex}`);
 
@@ -63,6 +63,7 @@ function NightPhaseScreen() {
 	const handleSkipOrContinue = () => {
 		// For viewing roles or when action is done/error occurred
 		advanceNightAction();
+		setActionType("");
 	};
 
 	const renderActionComponent = () => {
@@ -82,10 +83,46 @@ function NightPhaseScreen() {
 					(item) => item?.roleName || item?.name || item
 				) || "OK";
 			return (
-				<div className="result-roles">
+				<div className="action-container">
 					<h4>Action Result for {activeRoleName}:</h4>
 					{/* Be careful about revealing too much info here depending on role */}
-					<pre>{JSON.stringify(resultToShow, null, 2)}</pre>
+					{/* <p> You are now a ➡ {resultToShow}</p> */}
+					{/* //!------- Seer Action */}
+					{actionType === "player" && (
+						<div className="title">
+							Player {""}
+							{resultToShow[0].toUpperCase()} {""}
+							is a {resultToShow[1]}
+						</div>
+					)}
+					{actionType === "ground" && (
+						<div className="title">
+							There are a {""}
+							{resultToShow[0]} and a {""}
+							{resultToShow[1]} on the ground
+						</div>
+					)}
+					{/* //!-----Robber Action */}
+					{activeRoleName === "Robber" && (
+						<div className="title">
+							You are now a {resultToShow[0]}
+						</div>
+					)}
+					{/* //!----- TroubleMaker */}
+					{activeRoleName === "TroubleMaker" && (
+						<div className="title">
+							TroubleMaker switched{" "}
+							{resultToShow[0]} with{" "}
+							{resultToShow[1]}
+						</div>
+					)}
+					{/* //!--------Drunk */}
+					{activeRoleName === "Drunk" && (
+						<div className="title">
+							Drunk is now a {resultToShow[0]}
+						</div>
+					)}
+					{/* <pre>{JSON.stringify(resultToShow, null, 2)}</pre> */}
 					<button onClick={handleSkipOrContinue}>
 						Next Role
 					</button>
@@ -96,10 +133,10 @@ function NightPhaseScreen() {
 		// If no players have this role, show message and allow skipping
 		if (playersWithActiveRole.length === 0) {
 			return (
-				<div>
-					<p style={{ color: "#d8dde2" }}>
+				<div className="action-container">
+					<div className="role-action">
 						No players started as {activeRoleName}.
-					</p>
+					</div>
 					<button onClick={handleSkipOrContinue}>
 						Next Role
 					</button>
@@ -131,6 +168,8 @@ function NightPhaseScreen() {
 						groundCards={gameState.groundCards}
 						actingPlayerId={actingPlayer.id}
 						onSubmit={handleActionSubmit}
+						actionType={actionType}
+						setActionType={setActionType}
 					/>
 				);
 			case "Robber":
@@ -174,16 +213,28 @@ function NightPhaseScreen() {
 	};
 
 	return (
-		<div>
-			<h2>Night Phase</h2>
-			<h3>Judge: "{activeRoleName}, wake up!"</h3>
-			<p style={{ color: "#d8dde2" }}>
-				Player(s) with the role {activeRoleName}, perform your
-				action.
-			</p>
-			{renderActionComponent()}
-			{/* Optional: Add a general "Force Next Role" button for the judge if someone gets stuck */}
-			{/* <button onClick={advanceNightAction} style={{backgroundColor: '#ffc107', color: 'black'}}>Judge: Force Next</button> */}
+		<div className="outer">
+			<div className="dot"></div>
+			<div className="card">
+				<div className="ray"></div>
+				<div className="content">
+					<div className="phase-title">Night Phase</div>
+					<div className="judge-text">
+						Judge: "{activeRoleName}, wake up!"
+					</div>
+					<div className="instructions">
+						Player(s) with the role {activeRoleName},
+						perform your action.
+					</div>
+				</div>
+				{renderActionComponent()}
+				{/* Optional: Add a general "Force Next Role" button for the judge if someone gets stuck */}
+				{/* <button onClick={advanceNightAction} style={{backgroundColor: '#ffc107', color: 'black'}}>Judge: Force Next</button> */}
+				<div class="line topl"></div>
+				<div class="line leftl"></div>
+				<div class="line bottoml"></div>
+				<div class="line rightl"></div>
+			</div>
 		</div>
 	);
 }
