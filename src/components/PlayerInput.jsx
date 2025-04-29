@@ -13,7 +13,7 @@ function PlayerInput({ index, value, onChange }) {
 				onChange={(e) => onChange(index, e.target.value)}
 				placeholder={`Enter name for Player ${index + 1}`}
 				required={index < 6} // Example: require first 6
-				class="player-input"
+				className="player-input"
 			/>
 		</div>
 	);

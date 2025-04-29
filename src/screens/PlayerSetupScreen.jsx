@@ -54,11 +54,11 @@ function PlayerSetupScreen() {
 					<button
 						type="button"
 						onClick={addPlayer}
-						class="btn btn-add"
+						className="btn btn-add"
 					>
 						Add Another Player
 					</button>
-					<button type="submit" class="btn btn-start">
+					<button type="submit" className="btn btn-start">
 						Start Game with {playerNames.length} Players
 					</button>
 				</div>

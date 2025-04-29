@@ -287,9 +287,9 @@ export const GameProvider = ({ children }) => {
 	const determineWinner = useCallback(() => {
 		const game = gameInstanceRef.current;
 		const votes = gameState.playerVotes;
-		if (!game || Object.keys(votes).length !== game.players.length) {
-			return "Error";
-		}
+		// if (!game || Object.keys(votes).length !== game.players.length) {
+		// 	return "Error";
+		// }
 
 		game.players.forEach((p) => {
 			console.log(
@@ -326,61 +326,92 @@ export const GameProvider = ({ children }) => {
 			}
 		});
 
-		if (maxVotes === 0) return "Draw (No votes cast?)"; // Or handle differently
+		if (maxVotes === 0) {
+			const noVotesResult = "Draw (No votes cast)";
+			updateGameState({ winners: noVotesResult });
+			return noVotesResult;
+		}
+
 
 		const killedPlayerIds = Object.entries(voteCounts)
 			.filter(([id, count]) => count === maxVotes)
-			.map(([id, count]) => parseInt(id)); // Ensure IDs are numbers if needed
+			.map(([id]) => parseInt(id)); // Ensure IDs are numbers if needed
 
-		let winnerTeam = "Placeholder: Implement Winning Logic"; // Default placeholder
+		let winnerTeam = ""; // Default placeholder
 
 		// Example snippet (incomplete):
 		let werewolfKilled = false;
 		let villagerKilled = false;
 		let werewolfExists = false;
+		let jokerKilled = false;
 
 		killedPlayerIds.forEach((id) => {
 			const player = game.findPlayer(id);
-			if (player?.GetRole()?.team?.name === "Werewolf") {
+			const team = player.GetRole()?.team;
+			const role = player.GetRole()
+
+			if (team === "Villians" && role.roleName !== "Minion") {
 				// Use team name/type
 				werewolfKilled = true;
-			} else if (player?.GetRole()?.team?.name === "Villager") {
+			} else if (team === "GoodGuys") {
 				villagerKilled = true;
+			} else if (team === "Neutral"){
+				jokerKilled = true;
 			}
 			// Add Tanner, Hunter checks here
 		});
 		game.players.forEach((p) => {
-			if (p.GetRole()?.team?.name === "Werewolf")
+			if (p.GetRole()?.team === "Werewolf")
 				werewolfExists = true;
 		});
 
-		if (werewolfKilled) {
+		if (jokerKilled) {
+			winnerTeam = "Joker Wins Alone!";
+		  } else if (werewolfKilled) {
 			winnerTeam = "Villager Team";
-		} else if (werewolfExists && !villagerKilled) {
-			// simplified
+		  } else if (werewolfExists && !villagerKilled) {
 			winnerTeam = "Werewolf Team";
-		} else if (!werewolfExists && villagerKilled) {
-			// simplified - no ww, villager died
-			winnerTeam = "Werewolf Team (by default)"; // Or Draw? Check rules
-		} else {
-			winnerTeam = "Draw/Undetermined";
-		}
+		  } else if (!werewolfExists && villagerKilled) {
+			winnerTeam = "Werewolf Team (by default)";
+		  } else {
+			winnerTeam = "Draw,Undetermined";
+		  }
 		// ** THIS PLACEHOLDER IS VERY INCOMPLETE - REPLACE WITH FULL RULES **
 
 		// Reveal all cards at the end
 		game.players.forEach((p) => (p.isRevealed = true));
+
+		console.log("Calculated winner:", winnerTeam);
+
+
 		updateGameState({ winners: winnerTeam, ...getCurrentGameData() }); // Update players with revealed state
+
+
 		return winnerTeam;
 	}, [gameState.playerVotes, updateGameState, getCurrentGameData]);
 
 	useEffect(() => {
-		if (gameState.phase === "results" && gameState.winners === null) {
+		if (gameState.phase === "results" && gameState.winners === null) {	
 			determineWinner();
+			setTimeout(() => {
+				const game = gameInstanceRef.current;
+				if (game && !gameState.winners) {
+					const currentData = getCurrentGameData();
+					// Fallback winner if the calculation failed
+					const fallbackWinner = "that's a fall back";
+					updateGameState({
+						winners: fallbackWinner,
+						...currentData
+					});
+					console.log("🏆 Forced winner update:", fallbackWinner);
+				}
+			}, 100);
 		}
-	}, [gameState.phase, gameState.winners, determineWinner]);
+	}, [gameState.phase, gameState.winners, determineWinner, getCurrentGameData, updateGameState]);
 
 	const resetGame = useCallback(() => {
 		clearInterval(timerIntervalRef.current);
+		gameInstanceRef.current = null; // Reset the game instance
 		updateGameState({
 			phase: "role_reveal",
 			groundCards: [],

@@ -7,7 +7,7 @@ function RoleCard({ role }) {
 		<div className="role-card">
 			<div className="role-card-content">
 				<h4 className="role-name">{role.roleName}</h4>
-				<p className="role-description">{role.description}</p>
+				<p className="role-description">{role.effect.action}</p>
 			</div>
 		</div>
 	);

@@ -82,7 +82,7 @@ function NightPhaseScreen() {
 					(item) => item?.roleName || item?.name || item
 				) || "OK";
 			return (
-				<div>
+				<div className="result-roles">
 					<h4>Action Result for {activeRoleName}:</h4>
 					{/* Be careful about revealing too much info here depending on role */}
 					<pre>{JSON.stringify(resultToShow, null, 2)}</pre>

@@ -18,11 +18,11 @@ function GenericActionViewer({
 				const otherWolves = players.filter(
 					(p) =>
 						p.GetOriginalRole()?.roleName ===
-							"Werewolf" && p.id !== actingPlayerId
+							"Werewolf"
 				);
 				revealedInfo =
 					otherWolves.length > 0
-						? `Other Werewolf: ${otherWolves
+						? `All Werewolves: ${otherWolves
 								.map((p) => p.name)
 								.join(", ")}`
 						: "You are the only Werewolf.";
@@ -32,11 +32,11 @@ function GenericActionViewer({
 				const otherMasons = players.filter(
 					(p) =>
 						p.GetOriginalRole()?.roleName ===
-							"Maison" && p.id !== actingPlayerId
+							"Maison"
 				);
 				revealedInfo =
 					otherMasons.length > 0
-						? `Other Mason: ${otherMasons
+						? `All Masons: ${otherMasons
 								.map((p) => p.name)
 								.join(", ")}`
 						: "You are the only Mason.";
@@ -46,12 +46,17 @@ function GenericActionViewer({
 					(p) =>
 						p.GetOriginalRole()?.roleName === "Werewolf"
 				);
-				revealedInfo =
-					werewolves.length > 0
-						? `The Werewolf/ves is/are: ${werewolves
+				revealedInfo = (
+					<>
+					<span style={{color: "#9f1b3c"}}> You're {actingPlayer.name} </span>
+					
+					{werewolves.length > 0
+						? `and The Werewolf/ves is/are: ${werewolves
 								.map((p) => p.name)
 								.join(", ")}`
-						: "There are no Werewolves in play.";
+						: `but There are no Werewolves in play.`};
+					</>
+				);
 				break;
 			case "Insomniac":
 				// IMPORTANT: Insomniac sees their FINAL card AFTER all swaps.
