@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { useGame } from "../context/useGame";
 import LoadingScreen from "./LoadingScreen";
 
@@ -41,7 +40,7 @@ function ResultsScreen() {
 		}
 		console.log(killedPlayer)
 
-		const killedRole = killedPlayer.GetRole?.();
+		const killedRole = killedPlayer.GetRole();
 		const killedTeam = killedRole?.team;
 		const killedRoleName = killedRole?.roleName;
 
@@ -66,7 +65,7 @@ function ResultsScreen() {
 
 		// Check if werewolves exist in the game
 		players.forEach(player => {
-			const role = player.GetRole?.();
+			const role = player.GetRole();
 			if (role && (role.team === "Werewolves" || role.team === "Werewolf") && role.roleName !== "Minion") {
 				werewolfExists = true;
 			}
@@ -94,9 +93,9 @@ function ResultsScreen() {
 		return <LoadingScreen message="Calculating results..." />;
 	}
 
-	
+
 	const displayWinners = gameState.winners || determineWinner() || "Undetermined";
-	
+
 
 	return (
 		<div className="wdkr_game_over_container">
@@ -117,13 +116,13 @@ function ResultsScreen() {
 							<div className="g4pf_role_info">
 								<span className="z9xw_role_label">Started as:</span>
 								<span className="y3qc_role_value">
-									{player.GetOriginalRole()?.roleName || "N/A"}
+									{player.GetOriginalRole().roleName || "N/A"}
 								</span>
 							</div>
 							<div className="g4pf_role_info">
 								<span className="z9xw_role_label">Ended as:</span>
 								<span className="y3qc_role_value">
-									{player.GetRole()?.roleName || "N/A"}
+									{player.GetRole().roleName || "N/A"}
 								</span>
 							</div>
 						</li>

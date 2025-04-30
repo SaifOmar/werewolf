@@ -263,19 +263,17 @@ export const GameProvider = ({ children }) => {
 				};
 				const nextVoterIndex = prev.currentPlayerTurnIndex + 1;
 
-				if(gameInstanceRef.current?.castVotes){
+				if (gameInstanceRef.current) {
 					gameInstanceRef.current.castVotes(votedPlayerId);
 				}
-
 				const updatedPlayers = prev.players.map((p) => {
-					if(p.id === voterId){
+					if (p.id === voterId) {
 						p.vote = votedPlayerId;
 					}
 					return p;
 				});
 
-				if(gameInstanceRef.current){
-					gameInstanceRef.current.playerVotes = newVotes;
+				if (gameInstanceRef.current) {
 					gameInstanceRef.current.players = updatedPlayers
 				}
 
@@ -292,10 +290,12 @@ export const GameProvider = ({ children }) => {
 						players: updatedPlayers,
 					};
 				} else {
+					const winners = gameInstanceRef.current.FinishGame();
 					// Last vote cast, move to results calculation
 					return {
 						...prev,
-						phase: "results", // Transition to results phase
+						phase: gameInstanceRef.current.GetCurrentPhase(), // Transition to results phase
+						winners: winners,
 						playerVotes: newVotes,
 						currentPlayerTurnIndex: null,
 						players: updatedPlayers,
@@ -309,64 +309,64 @@ export const GameProvider = ({ children }) => {
 	const resetGame = useCallback(() => {
 		// Clear any running timers
 		clearInterval(timerIntervalRef.current);
-		
+
 		// Store the player names before resetting
 		const previousPlayerNames = gameState.players.map(p => p.name);
-		
+
 		// Reset game state
 		updateGameState({
-		  phase: "initial", // Temporarily set to initial
-		  players: [],
-		  groundCards: [],
-		  currentPlayerTurnIndex: 0,
-		  currentNightRoleIndex: -1,
-		  actionResult: null,
-		  playerVotes: {},
-		  winners: null,
-		  timerValue: DAY_DISCUSSION_TIME,
-		  isLoading: true, // Show loading state
-		  errorMessage: null,
+			phase: "initial", // Temporarily set to initial
+			players: [],
+			groundCards: [],
+			currentPlayerTurnIndex: 0,
+			currentNightRoleIndex: -1,
+			actionResult: null,
+			playerVotes: {},
+			winners: null,
+			timerValue: DAY_DISCUSSION_TIME,
+			isLoading: true, // Show loading state
+			errorMessage: null,
 		});
-		
+
 		// Clear the game instance reference
 		gameInstanceRef.current = null;
-		
+
 		// Create a new game with the same players after a short delay
 		setTimeout(() => {
-		  if (previousPlayerNames.length > 0) {
-			try {
-			  // Create a fresh game instance
-			  const game = new Game();
-			  game.SetPlayerNames(previousPlayerNames);
-			  game.Init(previousPlayerNames.length);
-			  gameInstanceRef.current = game;
-			  
-			  // Update state with the new game data
-			  const currentData = getCurrentGameData();
-			  updateGameState({
-				...currentData,
-				phase: "role_reveal", // Go directly to role reveal
-				currentPlayerTurnIndex: 0,
-				isLoading: false,
-			  });
-			  
-			  console.log("Game successfully reset with the same players");
-			} catch (error) {
-			  updateGameState({
-				phase: "initial",
-				errorMessage: "Failed to restart game: " + error.message,
-				isLoading: false,
-			  });
-			  console.error("Error resetting game:", error);
+			if (previousPlayerNames.length > 0) {
+				try {
+					// Create a fresh game instance
+					const game = new Game();
+					game.SetPlayerNames(previousPlayerNames);
+					game.Init(previousPlayerNames.length);
+					gameInstanceRef.current = game;
+
+					// Update state with the new game data
+					const currentData = getCurrentGameData();
+					updateGameState({
+						...currentData,
+						phase: "role_reveal", // Go directly to role reveal
+						currentPlayerTurnIndex: 0,
+						isLoading: false,
+					});
+
+					console.log("Game successfully reset with the same players");
+				} catch (error) {
+					updateGameState({
+						phase: "initial",
+						errorMessage: "Failed to restart game: " + error.message,
+						isLoading: false,
+					});
+					console.error("Error resetting game:", error);
+				}
+			} else {
+				// If there were no players, just go to initial setup
+				updateGameState({
+					isLoading: false,
+				});
 			}
-		  } else {
-			// If there were no players, just go to initial setup
-			updateGameState({
-			  isLoading: false,
-			});
-		  }
 		}, 300); // Short delay to allow state update and UI refresh
-	  }, [gameState.players, updateGameState, getCurrentGameData]);
+	}, [gameState.players, updateGameState, getCurrentGameData]);
 
 	// --- Provide Context Value ---
 	const value = {
