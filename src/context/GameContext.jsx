@@ -293,12 +293,16 @@ export const GameProvider = ({ children }) => {
 					};
 				} else {
 					// Last vote cast, move to results calculation
+
+
+
 					return {
 						...prev,
 						phase: "results", // Transition to results phase
 						playerVotes: newVotes,
 						currentPlayerTurnIndex: null,
 						players: updatedPlayers,
+						winners: gameInstanceRef.current.FinishGame()
 					};
 				}
 			});

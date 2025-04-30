@@ -5,98 +5,13 @@ import LoadingScreen from "./LoadingScreen";
 function ResultsScreen() {
 	const { gameState, resetGame } = useGame();
 
-	const determineWinner = () => {
-		// Safely get votes and game data
-		const votes = gameState.playerVotes || {};
-		const players = gameState.players || [];
-
-		// Count votes properly
-		const voteCounts = new Map();
-		Object.values(votes).forEach(votedId => {
-			if (votedId !== undefined && votedId !== null) {
-				voteCounts.set(votedId, (voteCounts.get(votedId) || 0) + 1);
-			}
-		});
-
-		// Find player with most votes
-		let killedPlayerId = null;
-		let maxVotes = -1;
-		voteCounts.forEach((count, playerId) => {
-			if (count > maxVotes) {
-				maxVotes = count;
-				killedPlayerId = playerId;
-			}
-		});
-
-		console.log(killedPlayerId)
-		// If no votes, return early
-		if (killedPlayerId === null) {
-			return "No majority vote - Draw";
-		}
-
-		// Get the killed player's info
-		const killedPlayer = players.find(p => p.id === Number(killedPlayerId));
-		if (!killedPlayer) {
-			return "Invalid player voted out - Draw";
-		}
-		console.log(killedPlayer)
-
-		const killedRole = killedPlayer.GetRole?.();
-		const killedTeam = killedRole?.team;
-		const killedRoleName = killedRole?.roleName;
-
-		console.log(killedRole)
-		console.log(killedTeam)
-
-
-		// Determine team statuses
-		let werewolfKilled = false;
-		let villagerKilled = false;
-		let tannerKilled = false;
-		let werewolfExists = false;
-
-		// Check what type of player was killed
-		if (killedTeam === "Werewolves" && killedRoleName !== "Minion") {
-			werewolfKilled = true;
-		} else if (killedTeam === "Villagers" || killedRoleName === "Minion") {
-			villagerKilled = true;
-		} else if (killedTeam === "Joker") {
-			tannerKilled = true;
-		}
-
-		// Check if werewolves exist in the game
-		players.forEach(player => {
-			const role = player.GetRole?.();
-			if (role && (role.team === "Werewolves" || role.team === "Werewolf") && role.roleName !== "Minion") {
-				werewolfExists = true;
-			}
-		});
-
-		// Determine the winner based on game rules
-		if (tannerKilled) {
-			return "Joker Wins!";
-		} else if (werewolfKilled) {
-			return werewolfExists ? "Villagers Win!" : "Villagers Win (all werewolves dead)";
-		} else if (villagerKilled) {
-			return werewolfExists ? "Werewolves Win!" : "Werewolves Win (by default)";
-		}
-
-		// Fallback conditions
-		if (!werewolfExists && !villagerKilled) {
-			return "Villagers Win (no werewolves)";
-		}
-
-		return "Draw - Undetermined outcome";
-	};
-
-
 	if (gameState.winners === null) {
 		return <LoadingScreen message="Calculating results..." />;
 	}
 
 	
-	const displayWinners = gameState.winners || determineWinner() || "Undetermined";
-	
+	// const displayWinners = gameState.winners || determineWinner() || "Undetermined";
+	const displayWinners = gameState.winners || "Undetermined";
 
 	return (
 		<div className="wdkr_game_over_container">

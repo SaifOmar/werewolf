@@ -35,7 +35,6 @@ function PlayerSetupScreen() {
 		const finalNames = validNames.map(
 			(name, index) => name || `Player ${index + 1}`
 		);
-		console.log("Submitting player names:", finalNames);
 		initializeGame(finalNames); // Call context function to start game logic
 	};
 

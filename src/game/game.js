@@ -90,7 +90,6 @@ export class Game {
 		for (const p of this.players) {
 			this.playerVotes.set(p.id, 0);
 		}
-		console.log(this.playerVotes);
 	}
 	// need a way to go over all players to take their votes and apply them
 	StartVotePhase() {
@@ -98,22 +97,42 @@ export class Game {
 		return this.playerVotes;
 	}
 	DetermineWinners() {
-		let maxVotes = 0;
-		let votedPlayerId = null;
-		for (const [id, votes] of this.playerVotes) {
-			if (votes > maxVotes) {
-				maxVotes = votes;
-				votedPlayerId = id;
+		let maxVotes = -1;
+		const voteCounts = new Map();
+
+		Object.values(this.playerVotes).forEach(votedId => {
+			if (votedId !== undefined && votedId !== null) {
+				voteCounts.set(votedId, (voteCounts.get(votedId) || 0) + 1);
+			}
+		});
+
+		voteCounts.forEach((count) => {
+			if (count > maxVotes) {
+				maxVotes = count;
+			}
+		});
+
+		const topVotedPlayer = [];
+		voteCounts.forEach((count, playerId) => {
+			if(count === maxVotes){
+				topVotedPlayer.push(playerId)
+			}
+		})
+		
+		if(topVotedPlayer.length !== 1){
+			return "You didn't agree on one";
+		}else{
+			
+			const votedPlayer = this.findPlayer(topVotedPlayer[0]);
+			if (votedPlayer.GetRole().team === "Werewolves" && votedPlayer.GetRole().roleName !== "Minion") {
+				return "Villagers Win";
+			} else if (votedPlayer.GetRole().roleName === "Joker") {
+				return "Joker Win"
+			} else {
+				return "Werewolves Win";
 			}
 		}
-		console.log("Werewolves alive:", werewolvesAlive);
-		console.log("Villagers alive:", villagersAlive);
-		
-		const votedPlayer = this.findPlayer(votedPlayerId);
-		if (votedPlayer.GetRole().team === "Villians") {
-			return "Villagers";
-		}
-		return "Werewolves";
+
 
 
 	}
@@ -218,7 +237,6 @@ export class Game {
 		this.groundCards = [];
 
 		const allRoles = this.roleFactory.createdRoles || [];
-		console.log(allRoles.length, this.players.length);
 		if (allRoles.length < this.players.length) {
 			throw new Error("Not enough roles for all players");
 		}
@@ -250,8 +268,8 @@ export class Game {
 	}
 
 	setGroundCard(index, role) {
-        this.groundCards[index] = role;
-    }
+		this.groundCards[index] = role;
+	}
 
 	findPlayer(playerId) {
 		const player = this.players.find(
@@ -278,10 +296,10 @@ export class Game {
 			);
 
 			const args = this.createDebugArgs(p);
-			
+
 			try {
 				const results = p
-				.GetRole()
+					.GetRole()
 					.effect.doEffect(p, this, args);
 				console.log(
 					`Effect results: ${JSON.stringify(results, null, 2)}`,
@@ -292,10 +310,10 @@ export class Game {
 				);
 			}
 		}
-		for(const p of this.players){
+		for (const p of this.players) {
 			console.log(`this is player: ${p.name}, his original role is ${p.GetOriginalRole().roleName} and his new role is ${p.GetRole().roleName}`)
 		}
-		
+
 		console.log("\n=== GROUND CARDS ===");
 		for (let i = 0; i < this.groundCards.length; i++) {
 			console.log(
@@ -305,10 +323,10 @@ export class Game {
 			console.log(this.roleFactory.NumberOfRoles);
 			// console.log(`Card hi ${i}: ${this.roleFactory.createdRoles}`);
 		}
-		
+
 		console.log("\n=== GAME DEBUG END ===");
 	}
-	
+
 	// Helper method to create appropriate test args for each role
 	createDebugArgs(player) {
 		switch (player.GetRole().roleName) {
@@ -351,9 +369,9 @@ export class Game {
 					players:
 						availablePlayers.length >= 2
 							? [
-									availablePlayers[0].id,
-									availablePlayers[1].id,
-								]
+								availablePlayers[0].id,
+								availablePlayers[1].id,
+							]
 							: [],
 				};
 
@@ -364,7 +382,7 @@ export class Game {
 					groundCards: [
 						Math.floor(
 							Math.random() *
-								this.groundCards.length,
+							this.groundCards.length,
 						),
 					],
 				};
