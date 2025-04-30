@@ -249,6 +249,11 @@ export const GameProvider = ({ children }) => {
 		}
 	}, [gameState.phase]);
 
+
+	// const castVote = useCallback((voterId, votedPlayerId) => {
+	// 	const game = gameInstanceRef.current
+	// })
+
 	const castVote = useCallback(
 		(voterId, votedPlayerId) => {
 			updateGameState((prev) => {
@@ -257,6 +262,22 @@ export const GameProvider = ({ children }) => {
 					[voterId]: votedPlayerId,
 				};
 				const nextVoterIndex = prev.currentPlayerTurnIndex + 1;
+
+				if(gameInstanceRef.current?.castVotes){
+					gameInstanceRef.current.castVotes(votedPlayerId);
+				}
+
+				const updatedPlayers = prev.players.map((p) => {
+					if(p.id === voterId){
+						p.vote = votedPlayerId;
+					}
+					return p;
+				});
+
+				if(gameInstanceRef.current){
+					gameInstanceRef.current.playerVotes = newVotes;
+					gameInstanceRef.current.players = updatedPlayers
+				}
 
 				if (
 					gameInstanceRef.current &&
@@ -268,6 +289,7 @@ export const GameProvider = ({ children }) => {
 						...prev,
 						playerVotes: newVotes,
 						currentPlayerTurnIndex: nextVoterIndex,
+						players: updatedPlayers,
 					};
 				} else {
 					// Last vote cast, move to results calculation
@@ -276,6 +298,7 @@ export const GameProvider = ({ children }) => {
 						phase: "results", // Transition to results phase
 						playerVotes: newVotes,
 						currentPlayerTurnIndex: null,
+						players: updatedPlayers,
 					};
 				}
 			});
@@ -283,152 +306,67 @@ export const GameProvider = ({ children }) => {
 		[updateGameState]
 	);
 
-	// --- Results ---
-	const determineWinner = useCallback(() => {
-		const game = gameInstanceRef.current;
-		const votes = gameState.playerVotes;
-		// if (!game || Object.keys(votes).length !== game.players.length) {
-		// 	return "Error";
-		// }
-
-		// ** ---------- THIS IS THE CRITICAL LOGIC YOU NEED TO IMPLEMENT ---------- **
-		// Based on One Night Ultimate Werewolf rules:
-		// 1. Count votes for each player.
-		// 2. Find player(s) with the most votes.
-		// 3. If a Tanner is killed, Tanner wins alone.
-		// 4. If a Hunter is killed, the player they voted for also dies.
-		// 5. If Werewolf(s) are killed, Villagers win (unless Tanner/Hunter overrides).
-		// 6. If no Werewolves are killed, Werewolves win (unless Tanner/Hunter overrides).
-		// 7. If multiple players tied for most votes, ALL tied players die (check rules for specifics).
-		// 8. Consider Minion win conditions (if Werewolves win, Minion also wins).
-		// 9. Consider Doppelganger win conditions (wins with the team they copied).
-
-		// Placeholder Logic:
-		const voteCounts = {};
-		let maxVotes = 0;
-		game.players.forEach((p) => {
-			voteCounts[p.id] = 0;
-		});
-		Object.values(votes).forEach((votedId) => {
-			if (voteCounts[votedId] !== undefined) {
-				voteCounts[votedId]++;
-				if (voteCounts[votedId] > maxVotes) {
-					maxVotes = voteCounts[votedId];
-				}
-			}
-		});
-
-		if (maxVotes === 0) {
-			const noVotesResult = "Draw (No votes cast)";
-			updateGameState({ winners: noVotesResult });
-			return noVotesResult;
-		}
-
-
-		const killedPlayerIds = Object.entries(voteCounts)
-			.filter(([id, count]) => count === maxVotes)
-			.map(([id]) => parseInt(id)); // Ensure IDs are numbers if needed
-
-
-		// Example snippet (incomplete):
-		let werewolfKilled = false;
-		let villagerKilled = false;
-		let werewolfExists = false;
-		let jokerKilled = false;
-
-		killedPlayerIds.forEach((id) => {
-			const player = game.findPlayer(id);
-			const team = player.GetRole()?.team;
-			const role = player.GetRole()
-
-			if (team === "Villians" && role.roleName !== "Minion") {
-				werewolfKilled = true;
-				console.log(`Werewolf killed: ${player.name}`);
-			} else if (team === "GoodGuys" || role.roleName === "Minion") {
-				villagerKilled = true;
-				console.log(`Villager killed: ${player.name} and his role was ${role.roleName}`);
-			} else if (team === "Neutral") {
-				jokerKilled = true;
-				console.log(`Joker killed: ${player.name}`);
-			}
-			// Add Tanner, Hunter checks here
-		});
-		game.players.forEach((p) => {
-			const role = p.GetRole();
-			if (role && (role.team === "Villians" || role.team === "Werewolf") && role.roleName !== "Minion") {
-				werewolfExists = true;
-			}
-		});
-
-		console.log("Game state check - werewolfKilled:", werewolfKilled, 
-			"villagerKilled:", villagerKilled, 
-			"werewolfExists:", werewolfExists, 
-			"jokerKilled:", jokerKilled);
-
-
-			let winnerTeam = ""; // Default placeholder
-
-
-		if (jokerKilled) {
-			winnerTeam = "Joker Wins Alone!";
-		} else if (werewolfKilled) {
-			winnerTeam = "Villager Team";
-		} else if (werewolfExists && !villagerKilled) {
-			winnerTeam = "Werewolf Team";
-		} else if (!werewolfExists && villagerKilled) {
-			winnerTeam = "Werewolf Team (by default)";
-		} else {
-			winnerTeam = "Draw,Undetermined";
-		}
-		// ** THIS PLACEHOLDER IS VERY INCOMPLETE - REPLACE WITH FULL RULES **
-
-		// Reveal all cards at the end
-		game.players.forEach((p) => (p.isRevealed = true));
-
-		console.log("Calculated winner:", winnerTeam);
-
-
-		updateGameState({ winners: winnerTeam, ...getCurrentGameData() }); // Update players with revealed state
-
-
-		return winnerTeam;
-	}, [gameState.playerVotes, updateGameState, getCurrentGameData]);
-
-	useEffect(() => {
-		if (gameState.phase === "results" && gameState.winners === null) {
-			determineWinner();
-			setTimeout(() => {
-				const game = gameInstanceRef.current;
-				if (game && !gameState.winners) {
-					const currentData = getCurrentGameData();
-					// Fallback winner if the calculation failed
-					const fallbackWinner = "that's a fall back";
-					updateGameState({
-						winners: fallbackWinner,
-						...currentData
-					});
-					console.log("🏆 Forced winner update:", fallbackWinner);
-				}
-			}, 100);
-		}
-	}, [gameState.phase, gameState.winners, determineWinner, getCurrentGameData, updateGameState]);
-
 	const resetGame = useCallback(() => {
+		// Clear any running timers
 		clearInterval(timerIntervalRef.current);
-		gameInstanceRef.current = null; // Reset the game instance
+		
+		// Store the player names before resetting
+		const previousPlayerNames = gameState.players.map(p => p.name);
+		
+		// Reset game state
 		updateGameState({
-			phase: "role_reveal",
-			groundCards: [],
-			currentPlayerTurnIndex: 0,
-			currentNightRoleIndex: -1,
-			actionResult: null,
-			playerVotes: {},
-			winners: null,
-			timerValue: DAY_DISCUSSION_TIME,
-			isLoading: false,
-			errorMessage: null,
+		  phase: "initial", // Temporarily set to initial
+		  players: [],
+		  groundCards: [],
+		  currentPlayerTurnIndex: 0,
+		  currentNightRoleIndex: -1,
+		  actionResult: null,
+		  playerVotes: {},
+		  winners: null,
+		  timerValue: DAY_DISCUSSION_TIME,
+		  isLoading: true, // Show loading state
+		  errorMessage: null,
 		});
-	}, [updateGameState]);
+		
+		// Clear the game instance reference
+		gameInstanceRef.current = null;
+		
+		// Create a new game with the same players after a short delay
+		setTimeout(() => {
+		  if (previousPlayerNames.length > 0) {
+			try {
+			  // Create a fresh game instance
+			  const game = new Game();
+			  game.SetPlayerNames(previousPlayerNames);
+			  game.Init(previousPlayerNames.length);
+			  gameInstanceRef.current = game;
+			  
+			  // Update state with the new game data
+			  const currentData = getCurrentGameData();
+			  updateGameState({
+				...currentData,
+				phase: "role_reveal", // Go directly to role reveal
+				currentPlayerTurnIndex: 0,
+				isLoading: false,
+			  });
+			  
+			  console.log("Game successfully reset with the same players");
+			} catch (error) {
+			  updateGameState({
+				phase: "initial",
+				errorMessage: "Failed to restart game: " + error.message,
+				isLoading: false,
+			  });
+			  console.error("Error resetting game:", error);
+			}
+		  } else {
+			// If there were no players, just go to initial setup
+			updateGameState({
+			  isLoading: false,
+			});
+		  }
+		}, 300); // Short delay to allow state update and UI refresh
+	  }, [gameState.players, updateGameState, getCurrentGameData]);
 
 	// --- Provide Context Value ---
 	const value = {
