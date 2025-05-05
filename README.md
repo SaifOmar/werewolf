@@ -1,54 +1,75 @@
-# React + TypeScript + Vite
+# Digital One Night Ultimate Werewolf
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A digital implementation of the popular deduction party game "One Night Ultimate Werewolf" built with TypeScript and React.
 
-Currently, two official plugins are available:
+## 🐺 About the Game
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+One Night Ultimate Werewolf is a fast-paced, hidden role game where players need to deduce who the werewolves are in just one night and one day phase. Unlike traditional Werewolf/Mafia games that eliminate players, everyone stays in until the very end, with roles that can change throughout the night.
 
-## Expanding the ESLint configuration
+### Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Digital adaptation** of the popular tabletop game
+- **Single-device play** for in-person game sessions
+- **Complete role set** including Werewolf, Seer, Robber, Troublemaker, and more
+- **Automated night phase** with guided role actions
+- **Timer** for the discussion phase
+- **Voting system** with automatic winner calculation
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 🎮 How to Play
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Game Setup
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Enter player names (6-14 players supported)
+2. Each player is secretly assigned a role
+3. Three additional role cards are placed in the center
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+### Game Flow
+
+1. **Role Reveal**: Each player views their initial role secretly
+2. **Night Phase**: Players take turns performing their role's night action
+3. **Action Results**: Players see the results of their night actions
+4. **Discussion**: Players have 6 minutes to discuss and deduce roles
+5. **Voting**: All players vote on who they think is a Werewolf
+6. **Game Over**: Winners are determined based on voting results
+
+### Winning Conditions
+
+- **Villagers** win if at least one Werewolf is eliminated
+- **Werewolves** win if no Werewolves are eliminated
+- **Joker** wins if they are eliminated (regardless of other outcomes)
+
+## 🎭 Roles
+
+### Werewolf Team
+- **Werewolf**: Wakes up with other Werewolves to identify teammates
+- **Minion**: Sees who the Werewolves are without them knowing the Minion's identity
+
+### Villager Team
+- **Villager**: Has no special night action
+- **Seer**: Can look at one player's card or two center cards
+- **Robber**: Swaps cards with another player and sees their new role
+- **Troublemaker**: Swaps two other players' cards without looking at them
+- **Mason**: Wakes up to see who the other Masons are
+- **Drunk**: Swaps their card with a center card without seeing it
+- **Clone**: Sees and takes on the ability of another role
+
+### Independent
+- **Joker**: Wins if they are voted to be eliminated
+
+## 💻 Technical Details
+
+This game is built with:
+- TypeScript for type safety
+- React for the UI components
+- CSS for styling
+
+
+
+## 🔮 Future Enhancements
+
+- Support for online multiplayer
+- Additional roles from expansions
+- Audio narration
+- Custom role configurations
+- Game history and statistics
+
