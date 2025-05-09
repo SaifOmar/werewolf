@@ -22,6 +22,3 @@ export class Player {
 	}
 }
 
-// 	public doAction(game: Game, args: any[]): void {
-// 		this.CurrentRole.doAction(this, game, args);
-// 	}

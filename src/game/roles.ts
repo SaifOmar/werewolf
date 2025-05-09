@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Game } from "./game";
 import { Player } from "./player";
 
@@ -16,7 +18,7 @@ class Role implements IRole {
 		this.team = "Villagers";
 	}
 
-	doAction(player: Player, game: Game, args: any[]) {
+	doAction(player: Player, game: Game, args: any[]): void {
 		console.log("Base role action");
 		throw new Error("Method not implemented.");
 	}

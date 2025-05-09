@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { theme } from '../theme';
+import { Game } from '../game/game';
 
 const TimerContainer = styled.div`
     background-color: ${theme.colors.surface};
@@ -12,12 +13,12 @@ const TimerContainer = styled.div`
 `;
 
 interface TimerProps {
-  seconds: number;
+  game: Game;
   onComplete: () => void;
 }
 
-export const Timer: React.FC<TimerProps> = ({ seconds, onComplete }) => {
-  const [timeLeft, setTimeLeft] = useState(seconds);
+export const Timer: React.FC<TimerProps> = ({ game, onComplete }) => {
+  const [timeLeft, setTimeLeft] = useState(game.DISCUSSION_TIME);
 
   useEffect(() => {
     if (timeLeft <= 0) {

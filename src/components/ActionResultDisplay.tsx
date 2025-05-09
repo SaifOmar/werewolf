@@ -55,66 +55,63 @@ export const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ curren
     const resultData = game.nightResults.get(currentPlayer.id); // Get the specific result data for this player
 
     switch (currentPlayer.OriginalRole.roleName) {
+      // Werewolves see other werewolves
       case 'Werewolf':
-        // Werewolves see other werewolves
-        const otherWerewolves = game.players.filter(p =>
-          p.id !== currentPlayer.id && p.CurrentRole.team === "Werewolfs"
-        );
-        const centerWerewolves = game.centerCards.filter(c => c.team === "Werewolfs");
-
-        if (otherWerewolves.length === 0 && centerWerewolves.length === 0) {
-          // If no other werewolves and no center werewolves, the solo werewolf sees a center card.
-          // This rule variation needs to be handled in game.ts executeNightActions and resultData
-          // Assuming standard rules: If no other WWs, you just know you're the solo WW.
-          return <p>You are the only Werewolf. No one else woke up with you.</p>;
-        } else {
-          return (
-            <>
-              <p>The other Werewolves are:</p>
-              {otherWerewolves.length > 0 && <ul>{otherWerewolves.map(p => <li key={p.id}>{p.name}</li>)}</ul>}
-              {centerWerewolves.length > 0 && <p>There are also Werewolves in the center!</p>}
-            </>
+        {
+          const otherWerewolves = game.players.filter(p =>
+            p.id !== currentPlayer.id && p.OriginalRole.roleName === "Werewolf"
           );
+          if (otherWerewolves.length === 0) {
+            return <p>You are the only Werewolf. No one else woke up with you.</p>;
+          } else {
+            return (
+              <>
+                <p>The other Werewolves are:</p>
+                {<ul>{otherWerewolves.map(p => <li key={p.id}>{p.name}</li>)}</ul>}
+              </>
+            );
+          }
         }
 
+      // Minion sees werewolves
       case 'Minion':
-        // Minion sees werewolves
-        const allWerewolves = game.players.filter(p => p.CurrentRole.team === "Werewolfs");
-        const centerWerewolvesMinion = game.centerCards.filter(c => c.team === "Werewolfs");
+        {
+          const allWerewolves = game.players.filter(p => p.OriginalRole.roleName === "Werewolf");
 
-        if (allWerewolves.length === 0 && centerWerewolvesMinion.length === 0) {
-          return <p>There are no Werewolves in play.</p>;
-        } else {
-          return (
-            <>
-              <p>The Werewolves are:</p>
-              {allWerewolves.length > 0 && <ul>{allWerewolves.map(p => <li key={p.id}>{p.name}</li>)}</ul>}
-              {centerWerewolvesMinion.length > 0 && <p>There are also Werewolves in the center!</p>}
-            </>
-          );
+          if (allWerewolves.length === 0) {
+            return <p>There are no Werewolves in play.</p>;
+          } else {
+            return (
+              <>
+                <p>The Werewolves are:</p>
+                {<ul>{allWerewolves.map(p => <li key={p.id}>{p.name}</li>)}</ul>}
+              </>
+            );
+          }
         }
 
 
+      // Masons see other masons
       case 'Mason':
-        // Masons see other masons
-        const otherMasons = game.players.filter(p =>
-          p.id !== currentPlayer.id && p.OriginalRole.roleName === "Mason" // Masons only see other *original* masons
-        );
-
-        if (otherMasons.length === 0) {
-          return <p>You are the only Mason.</p>;
-        } else {
-          return (
-            <>
-              <p>The other Masons are:</p>
-              <ul>{otherMasons.map(p => <li key={p.id}>{p.name}</li>)}</ul>
-            </>
+        {
+          const otherMasons = game.players.filter(p =>
+            p.id !== currentPlayer.id && p.OriginalRole.roleName === "Mason" // Masons only see other *original* masons
           );
+
+          if (otherMasons.length === 0) {
+            return <p>You are the only Mason.</p>;
+          } else {
+            return (
+              <>
+                <p>The other Masons are:</p>
+                <ul>{otherMasons.map(p => <li key={p.id}>{p.name}</li>)}</ul>
+              </>
+            );
+          }
         }
 
 
       case 'Seer':
-        // Seer sees the role(s) they looked at (stored in nightResults)
         if (resultData?.type === 'player') {
           return (
             <>

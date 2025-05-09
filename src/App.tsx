@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-irregular-whitespace */
 import React, { useState, useRef, useEffect } from 'react'; // Import useRef and useEffect
 import { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { theme } from './theme';
@@ -25,13 +27,18 @@ const GlobalStyle = createGlobalStyle`
 
 const App: React.FC = () => {
   // Use useRef to hold the mutable Game instance
-  const gameRef = useRef<Game | null>(null);
+  const gameRef = useRef<Game>(new Game());
 
+  interface pendingAction {
+    playerIndex: number;
+    actionArgs: any[];
+  }
   // Use useState for the specific data pieces the UI needs
   const [phase, setPhase] = useState<GamePhase>(GamePhase.Setup);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
   const [players, setPlayers] = useState<Player[]>([]); // Keep players list in state
   const [centerCards, setCenterCards] = useState<IRole[]>([]); // Keep center cards in state
+  const [pendingActions, setPendingActions] = useState<pendingAction[]>([]); // Keep center cards in state
   const [nightResults, setNightResults] = useState<Map<number, any>>(new Map()); // Keep results in state
 
   // Initialize the game instance when the component mounts
@@ -47,10 +54,11 @@ const App: React.FC = () => {
   const updateUIStateFromGame = () => {
     const currentGame = gameRef.current;
     if (currentGame) {
-      setPhase(currentGame.phase);
-      setCurrentPlayerIndex(currentGame.currentPlayerIndex);
       setPlayers([...currentGame.players]); // Spread to create a new array reference
       setCenterCards([...currentGame.centerCards]); // Spread to create a new array reference
+      setPhase(currentGame.phase);
+      setCurrentPlayerIndex(currentGame.currentPlayerIndex);
+      setPendingActions([...currentGame.pendingActions]);
       setNightResults(new Map(currentGame.nightResults)); // Create a new Map reference
     }
   };
@@ -63,11 +71,10 @@ const App: React.FC = () => {
     }
     try {
       currentGame.setup(playerNames); // Mutates the game instance
+      currentGame.startRoleReveal(); // Mutates the game instance
       // Manually update React state based on the new game instance state
       updateUIStateFromGame();
       // Explicitly set initial phase after setup if setup doesn't do it
-      setPhase(GamePhase.RoleReveal);
-      setCurrentPlayerIndex(0);
     } catch (error) {
       console.error("Failed to setup game:", error);
       // Reset React state on error
@@ -90,12 +97,10 @@ const App: React.FC = () => {
       // All players have revealed their roles, move to Night
       currentGame.startNight(); // Mutates the game instance
       // Update React state
-      setPhase(GamePhase.Night);
-      setCurrentPlayerIndex(0); // Reset index for Night phase
-      // Optionally update players/center if startNight changes them in a way UI needs
-      // setPlayers([...currentGame.players]);
+      updateUIStateFromGame();
     } else {
       // Move to the next player for role reveal
+      currentGame.currentPlayerIndex = nextPlayerIndex; // Update game instance
       setCurrentPlayerIndex(nextPlayerIndex); // Only update index state
     }
   };
@@ -104,6 +109,7 @@ const App: React.FC = () => {
   const handleNightActionComplete = (actionArgs: any[]) => {
     const currentGame = gameRef.current;
     if (!currentGame) return;
+
 
     const playerIndex = currentPlayerIndex; // Use current state index
 
@@ -115,11 +121,16 @@ const App: React.FC = () => {
       // All players have recorded their actions
       currentGame.executeNightActions(); // Mutates the game instance (executes actions, populates results)
       // Update React state based on executed actions
-      setPhase(GamePhase.ActionResult); // Explicitly set next phase
-      setCurrentPlayerIndex(0); // Reset index for Action Result phase
-      setPlayers([...currentGame.players]); // Update players state (roles may have changed)
-      setCenterCards([...currentGame.centerCards]); // Update center state (roles may have changed)
-      setNightResults(new Map(currentGame.nightResults)); // Update results state
+      currentGame.currentPlayerIndex = 0;
+      currentGame.phase = GamePhase.ActionResult;
+      currentGame.nightResults = (new Map(currentGame.nightResults));
+      updateUIStateFromGame();
+
+      // setPhase(GamePhase.ActionResult); // Explicitly set next phase
+      // setCurrentPlayerIndex(0); // Reset index for Action Result phase
+      // setPlayers([...currentGame.players]); // Update players state (roles may have changed)
+      // setCenterCards([...currentGame.centerCards]); // Update center state (roles may have changed)
+      // setNightResults(new Map(currentGame.nightResults)); // Update results state
     } else {
       // Move to the next player for their night action selection
       setCurrentPlayerIndex(nextPlayerIndex); // Only update index state
@@ -134,15 +145,10 @@ const App: React.FC = () => {
     const nextPlayerIndex = currentPlayerIndex + 1;
 
     if (nextPlayerIndex >= players.length) {
-      // All players have seen their results, move to Discussion
       currentGame.startDiscussion(); // Mutates the game instance
-      // Update React state
-      setPhase(GamePhase.Discussion); // Explicitly set next phase
-      setCurrentPlayerIndex(0); // Index isn't used in Discussion UI
-      // Timer state managed by Timer component, but startDiscussion should set game.timerActive = true
-      // No need to explicitly set timerActive state here unless Timer doesn't read game.timerActive
+      currentGame.currentPlayerIndex = 0
+      updateUIStateFromGame();
     } else {
-      // Move to the next player to see their result
       setCurrentPlayerIndex(nextPlayerIndex); // Only update index state
     }
   };
@@ -173,7 +179,7 @@ const App: React.FC = () => {
 
     if (nextPlayerIndex >= players.length) {
       // All players have voted
-      currentGame.tallyVotes(); // Mutates isAlive, *may* set phase to GameOver
+      currentGame.countVotes(); // Mutates isAlive, *may* set phase to GameOver
       // Update React state
       setPhase(GamePhase.GameOver); // Explicitly set next phase (or read from game.phase if tallyVotes sets it)
       setCurrentPlayerIndex(0); // Index not used in Game Over
@@ -193,52 +199,57 @@ const App: React.FC = () => {
 
       case GamePhase.RoleReveal:
         // Ensure current player index is valid for rendering
-        const revealPlayer = players[currentPlayerIndex];
-        if (!revealPlayer) {
-          console.error("Invalid player index in Role Reveal phase state:", currentPlayerIndex, players.length);
-          // Attempt to move to the next state to recover
-          handleRoleRevealComplete();
-          return <Card>Loading next player...</Card>; // Placeholder while state updates
+        {
+          const revealPlayer = players[currentPlayerIndex];
+          if (!revealPlayer) {
+            console.error("Invalid player index in Role Reveal phase state:", currentPlayerIndex, players.length);
+            // Attempt to move to the next state to recover
+            handleRoleRevealComplete();
+            return <Card>Loading next player...</Card>; // Placeholder while state updates
+          }
+          return (
+            <RoleReveal
+              currentPlayer={revealPlayer}
+              totalPlayers={players.length}
+              onNext={handleRoleRevealComplete}
+            />
+          );
         }
-        return (
-          <RoleReveal
-            currentPlayer={revealPlayer}
-            totalPlayers={players.length}
-            onNext={handleRoleRevealComplete}
-          />
-        );
 
       case GamePhase.Night:
         // Ensure current player index is valid for rendering
-        const nightPlayer = players[currentPlayerIndex];
-        if (!nightPlayer) {
-          console.error("Invalid player index in Night phase state:", currentPlayerIndex, players.length);
-          handleNightActionComplete([]); // Attempt to advance night action to skip
-          return <Card>Loading next player...</Card>; // Placeholder
+        {
+          const nightPlayer = players[currentPlayerIndex];
+          if (!nightPlayer) {
+            console.error("Invalid player index in Night phase state:", currentPlayerIndex, players.length);
+            handleNightActionComplete([]); // Attempt to advance night action to skip
+            return <Card>Loading next player...</Card>; // Placeholder
+          }
+          return (
+            <NightAction
+              currentPlayer={nightPlayer}
+              game={gameRef.current!} // Pass the game instance to NightAction (used for player/center lists)
+              onActionComplete={handleNightActionComplete}
+            />
+          );
         }
-        return (
-          <NightAction
-            currentPlayer={nightPlayer}
-            game={gameRef.current!} // Pass the game instance to NightAction (used for player/center lists)
-            onActionComplete={handleNightActionComplete}
-          />
-        );
 
       case GamePhase.ActionResult:
-        // Ensure current player index is valid for rendering
-        const resultPlayer = players[currentPlayerIndex];
-        if (!resultPlayer) {
-          console.error("Invalid player index in Action Result phase state:", currentPlayerIndex, players.length);
-          handleActionResultComplete(); // Attempt to move to the next state to recover
-          return <Card>Loading next result...</Card>; // Placeholder
+        {
+          const resultPlayer = players[currentPlayerIndex];
+          if (!resultPlayer) {
+            console.error("Invalid player index in Action Result phase state:", currentPlayerIndex, players.length);
+            handleActionResultComplete(); // Attempt to move to the next state to recover
+            return <Card>Loading next result...</Card>; // Placeholder
+          }
+          return (
+            <ActionResultDisplay
+              currentPlayer={resultPlayer}
+              game={gameRef.current!} // Pass the game instance to lookup results, other players etc.
+              onComplete={handleActionResultComplete}
+            />
+          );
         }
-        return (
-          <ActionResultDisplay
-            currentPlayer={resultPlayer}
-            game={gameRef.current!} // Pass the game instance to lookup results, other players etc.
-            onComplete={handleActionResultComplete}
-          />
-        );
 
       case GamePhase.Discussion:
         return (
@@ -259,19 +270,21 @@ const App: React.FC = () => {
 
       case GamePhase.Voting:
         // Ensure current player index is valid for rendering
-        const votingPlayer = players[currentPlayerIndex];
-        if (!votingPlayer) {
-          console.error("Invalid player index in Voting phase state:", currentPlayerIndex, players.length);
-          handlePlayerVote(-1); // Attempt to advance vote phase
-          return <Card>Loading next voter...</Card>;
+        {
+          const votingPlayer = players[currentPlayerIndex];
+          if (!votingPlayer) {
+            console.error("Invalid player index in Voting phase state:", currentPlayerIndex, players.length);
+            handlePlayerVote(-1); // Attempt to advance vote phase
+            return <Card>Loading next voter...</Card>;
+          }
+          return (
+            <Voting
+              players={players} // Pass players list from state
+              currentPlayer={votingPlayer} // Pass current player from state
+              onVote={handlePlayerVote}
+            />
+          );
         }
-        return (
-          <Voting
-            players={players} // Pass players list from state
-            currentPlayer={votingPlayer} // Pass current player from state
-            onVote={handlePlayerVote}
-          />
-        );
 
       case GamePhase.GameOver:
         // Game Over doesn't use currentPlayerIndex for rendering players list

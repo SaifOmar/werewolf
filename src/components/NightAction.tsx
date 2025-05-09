@@ -86,8 +86,7 @@ export const NightAction: React.FC<NightActionProps> = ({ currentPlayer, game, o
     setSelectedCenter([]);
     setMessage('');
     setIsProcessing(false);
-    // The effect runs whenever currentPlayer.id changes
-  }, [currentPlayer.id]);
+  }, [currentPlayer.name]);
   // ------------------------------------------------
 
   const otherPlayers = game.players.filter(p => p.id !== currentPlayer.id);

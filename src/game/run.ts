@@ -121,7 +121,7 @@ function runGameExample() {
   }
 
   // Tally votes
-  const eliminated = game.tallyVotes();
+  const eliminated = game.countVotes();
   console.log("\nVoting Results:");
   if (eliminated.length === 0) {
     console.log("No one was eliminated.");
@@ -137,6 +137,11 @@ function runGameExample() {
   console.log("\nFinal Roles:");
   game.players.forEach(player => {
     console.log(`${player.name}: Started as ${player.OriginalRole.roleName}, ended as ${player.CurrentRole.roleName} (${player.isAlive ? "Alive" : "Dead"})`);
+  });
+
+  console.log("\nFinal Center Cards:");
+  game.centerCards.forEach((centerCard, i) => {
+    console.log(`${i}: ${centerCard.roleName}`);
   });
 }
 
