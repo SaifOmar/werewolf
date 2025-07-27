@@ -1,6 +1,6 @@
-import * as actions from './entities/actions';
-import { Game } from './entities/game';
-import { Manager } from './entities/manager';
+import * as actions from './src/entities/actions';
+import { Game } from './src/entities/game';
+import { Manager } from './src/entities/manager';
 
 const manager = new Manager();
 let game = manager.createGame();
