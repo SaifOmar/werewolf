@@ -12,8 +12,30 @@ game.playerJoin('Ahmed');
 game.playerJoin('Salah');
 game.playerJoin('Omar');
 game.start();
+game.on('timerTick', (totalSeconds) => {
+      manager.logger.log(`timerTick ${totalSeconds}`);
+});
+game.on('votingStarted', () => {
+      vote(game, manager.logger);
+      game.getVoteResults().forEach((res) => {
+            manager.logger.log(`voter: ${res.voter} voted: ${res.vote}`);
+      });
+});
+game.on('votesCalculated', (mapVotes) => {
+      const res = game.calculateResults(mapVotes);
+      manager.logger.log(res);
+});
+game.startDay().then(function () {
+      game.startVoting();
+});
 const groundRolesId = game.groundRoles.map((r) => r.id);
 // handle loggin to the logger here
+
+function vote(game: Game, logger: any) {
+      game.players.forEach((p) => {
+            p.vote(game, game.players[Math.floor(Math.random() * game.players.length)].id);
+      });
+}
 function performActionsInOrder(game: Game, logger: any) {
       // order of actions 1. werewolf , 2. mason, 3. seer, 4.robber,5. troublemaker, 6.drunk
       const werewolfs = game.players.filter((p) => p.getOriginalRole().name.toLowerCase() === 'werewolf');

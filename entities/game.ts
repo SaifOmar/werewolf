@@ -1,26 +1,32 @@
 import { Action } from './actions';
 import Logger from './manager';
 import { Player } from './player';
-import { Role, RoleClasses } from './role';
+import { Role, RoleClasses, Team } from './role';
 
+import { EventEmitter } from 'events';
 //WARNING: Just random phases
 export const enum Phase {
       Waiting = 'waiting',
       Initial = 'initial',
-      Night = 'Night',
-      Morning = 'Morning',
-      Day = 'Day',
-      Evening = 'Evening',
-      Finished = 'Finished',
+      Night = 'night',
+      Day = 'day',
+      Voting = 'voting',
+      Finished = 'finished',
+}
+
+export enum TimerOption {
+      TenMinutes = 10,
+      SixMinutes = 6,
+      FourMinutes = 4,
 }
 
 export type Vote = {
+      // ids
       voter: string;
       vote: string;
 };
 
-export class Game {
-      private maxNumberOfPlayers: number = 7;
+export class Game extends EventEmitter {
       public groundRoles: Role[];
       public players: Player[];
       public phase: Phase;
@@ -31,12 +37,17 @@ export class Game {
       public actions: Action[];
       public logsEnabled: boolean = false;
       public votes: Vote[];
-      private readonly numberOfGroundRoles: number = 3;
+      public timer: TimerOption = TimerOption.SixMinutes;
+      public winners: Team;
+      private maxNumberOfPlayers: number = 7;
       private _availableRoles: Role[];
+      private readonly numberOfGroundRoles: number = 3;
 
       public constructor(logger: Logger) {
+            super();
             this.logger = logger;
             this.actions = [];
+            this.votes = [];
             this.code = Math.random().toString(36).substring(2, 10);
             this._availableRoles = [];
             this.players = [];
@@ -47,39 +58,95 @@ export class Game {
             this.logger.info('Game created');
       }
 
-      public playerJoin(name: string) {
+      public playerJoin(name: string): void {
             this.logger.info(`playerJoin ${name}`);
             if (this.players.length + 1 > this.maxNumberOfPlayers) {
+                  // how should I do this?
                   this.logger.error(`Game is full please join another game`);
                   console.error(`Game is full please join another game`);
                   return;
             }
             if (this.players.find((p) => p.name === name)) {
-                  this.logger.error(`A player with this name (${name}) already joined please chose another name`);
-                  console.error(`A player with this name (${name}) already joined please chose another name`);
-                  return;
+                  throw new Error(`A player with this name (${name}) already joined please chose another name`);
             }
             this.players.push(new Player(name));
+            this.emit('playerJoin', name);
       }
-      public start() {
+      public start(): void {
             this.assignRandomRoles();
             this.groundRoles = this._availableRoles.slice(0, this.numberOfGroundRoles);
-            this.logger.info(`ground roles: ${this.groundRoles.map((r) => r.name)}`);
+            this.logger.log(`ground roles: ${this.groundRoles.map((r) => r.name)}`);
             this.phase = Phase.Night;
-            console.log('Game started');
-            this.logger.info('Game started');
+            this.logger.log('Game started');
             this.logGame();
+            this.emit('gameStarted');
       }
-      public getAvailableRoles(): Role[] {
-            return this._availableRoles;
+      public startDay(): Promise<void> {
+            this.phase = Phase.Day;
+            console.log('Game state is now day');
+            let totalSeconds = this.timer * 60;
+            totalSeconds = 3;
+            this.emit('dayStarted');
+            return new Promise((resolve) => {
+                  const interval = setInterval(() => {
+                        this.emit('timerTick', totalSeconds);
+                        if (totalSeconds <= 0) {
+                              clearInterval(interval);
+                              resolve();
+                        }
+                        totalSeconds--;
+                  }, 1000);
+            });
       }
-      public finish() {
+      public startVoting(): void {
+            this.phase = Phase.Voting;
+            this.emit('votingStarted');
+            this.logger.log('Game state is now voting');
+      }
+      public getVoteResults(): Vote[] {
+            let votes = this.votes;
+            let mapVotes = new Map();
+            for (let i = 0; i < votes.length; i++) {
+                  let vote = votes[i];
+                  if (mapVotes.has(vote.vote)) {
+                        mapVotes.set(vote.vote, mapVotes.get(vote.vote) + 1);
+                  } else {
+                        mapVotes.set(vote.vote, 1);
+                  }
+                  vote.voter = this.getPlayerById(vote.voter).name;
+                  vote.vote = this.getPlayerById(vote.vote).name;
+            }
+            this.emit('votesCalculated', mapVotes);
+            return votes;
+      }
+      public calculateResults(mapVotes: Map<string, number>): string {
+            let prev = 0;
+            let voted = '';
+            mapVotes.forEach((value, key) => {
+                  if (prev < value) {
+                        prev = value;
+                        voted = key;
+                  }
+            });
+            voted = this.getPlayerById(voted).getRole().team;
+            if (voted === 'werewolf') {
+                  this.winners = Team.Heroes;
+            } else {
+                  this.winners = Team.Villains;
+            }
+            this.emit('winnersCalculated', this.winners);
+            return this.winners;
+      }
+
+      public finish(): void {
             this.logger.info('Game finished');
             this.phase = Phase.Finished;
+            this.emit('gameFinished');
             console.log('Game finished');
             this.logGame();
       }
-      public restart() {
+      public restart(): void {
+            this.emit('gameRestarted');
             this.logger.info('Game restarted');
             this.logGame();
             this.phase = Phase.Waiting;
@@ -95,7 +162,10 @@ export class Game {
             }
             throw new Error(`Player with id ${id} not found`);
       }
-      private logGame() {
+      public getAvailableRoles(): Role[] {
+            return this._availableRoles;
+      }
+      private logGame(): void {
             if (!this.logsEnabled) return;
             this.logger.log(`players: ${this.players.map((p) => p.name)}`);
             this.logger.log(`current phase: ${this.phase}`);
@@ -104,10 +174,9 @@ export class Game {
                   this.logger.log(`player ${this.players[i].name} role: ${this.players[i].getRole().name}`);
             }
       }
-      private assignRandomRoles() {
+      private assignRandomRoles(): void {
             let availableRoles = this._availableRoles;
             this.logger.info(`available roles: ${availableRoles.map((r) => r.name)}`);
-            // TODO: this should be avaialable roles  + 3
             if (availableRoles.length < this.players.length + 3) {
                   console.error('There is not enough roles to assign to all players');
             }
@@ -122,7 +191,6 @@ export class Game {
 
 // HACK: We read from a db or something but wtf is this
 export const getRolesFromDB = function (numberOfWerewolf: number = 3, numberOfMasons: number = 2): Role[] {
-      // INFO:  for now I just return the 9 base roles
       let roles: Role[] = [];
       const roleNames = ['Werewolf', 'Mason', 'Seer', 'Drunk', 'Troublemaker', 'Robber', 'Minion'];
       for (let i = 0; i < roleNames.length; i++) {

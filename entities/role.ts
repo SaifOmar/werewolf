@@ -2,15 +2,21 @@ import { Action, SeerActionType } from './actions';
 import { Game } from './game';
 import { Player } from './player';
 
+export enum Team {
+      Villains = 'werewolf',
+      Heroes = 'villagers',
+}
 export interface Role {
       id: string;
       name: string;
+      team: Team;
       description: string;
       performAction(): Function;
 }
 
 export class Werewolf implements Role {
       public name: string = 'Werewolf';
+      public team: Team = Team.Villains;
       public description: string = 'The most evil creature in the game';
       public id: string;
       public constructor() {
@@ -28,6 +34,7 @@ export class Werewolf implements Role {
 
 export class Seer implements Role {
       public name: string = 'Seer';
+      public team: Team = Team.Heroes;
       public description: string = 'The most evil creature in the game';
       public id: string;
       public constructor() {
@@ -55,6 +62,7 @@ export class Seer implements Role {
 export class Robber implements Role {
       public name: string = 'Robber';
       public description: string = 'The most evil creature in the game';
+      public team: Team = Team.Heroes;
       public id: string;
       public constructor() {
             this.id = Math.random().toString(36).substring(2, 10);
@@ -74,6 +82,7 @@ export class Robber implements Role {
 }
 export class Drunk implements Role {
       public name: string = 'Drunk';
+      public team: Team = Team.Heroes;
       public description: string = 'The most evil creature in the game';
       public id: string;
       public constructor() {
@@ -95,6 +104,7 @@ export class Drunk implements Role {
 export class Troublemaker implements Role {
       public name: string = 'Troublemaker';
       public description: string = 'The most evil creature in the game';
+      public team: Team = Team.Heroes;
       public id: string;
       public constructor() {
             this.id = Math.random().toString(36).substring(2, 10);
@@ -117,6 +127,7 @@ export class Troublemaker implements Role {
 export class Mason implements Role {
       public name: string = 'Mason';
       public description: string = 'The most evil creature in the game';
+      public team: Team = Team.Heroes;
       public id: string;
       public constructor() {
             this.id = Math.random().toString(36).substring(2, 10);
@@ -135,6 +146,7 @@ export class Minion implements Role {
       public name: string = 'Minion';
       public description: string = 'The most evil creature in the game';
       public id: string;
+      public team: Team = Team.Villains;
       public constructor() {
             this.id = Math.random().toString(36).substring(2, 10);
       }
