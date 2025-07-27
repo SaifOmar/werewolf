@@ -1,8 +1,20 @@
 {
-    "tabWidth": 2
-    "useTabs": false
-    "singleQuote": false
-    "jsxBracketSameLine": true 
-    "arrowParens": "always"
-    "endOfLine": "lf"
+      "semi": true,
+      "singleQuote": true,
+      "singleAttributePerLine": false,
+      "htmlWhitespaceSensitivity": "css",
+      "printWidth": 150,
+      "plugins": ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
+      "tailwindFunctions": ["clsx", "cn"],
+      "tailwindStylesheet": "resources/css/app.css",
+      "allowParens": "always",
+      "tabWidth": 6,
+      "overrides": [
+            {
+                  "files": "**/*.yml",
+                  "options": {
+                        "tabWidth": 2
+                  }
+            }
+      ]
 }
