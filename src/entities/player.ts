@@ -1,5 +1,5 @@
 import { Action } from './actions';
-import { Game } from './game';
+import { Game, Phase } from './game';
 import { Role } from './role';
 
 export class Player {
@@ -28,7 +28,13 @@ export class Player {
             this.role = role;
       }
       public performAction(game: Game, action: Action) {
+            if (game.phase !== Phase.PerfomActions) {
+                  throw new Error('Game is not in perfom actions phase');
+            }
             return this.role.performAction()(game, this, action);
+      }
+      public toString(): string {
+            return this.name;
       }
       public vote(game: Game, vote: string) {
             return game.votes.push({ voter: this.id, vote: vote });

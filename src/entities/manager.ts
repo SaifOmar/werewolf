@@ -15,6 +15,13 @@ export class Manager {
             this.games.push(game);
             return game;
       }
+      public canJoinGame(code: string): boolean {
+            let game = this.games.find((game) => game.code === code);
+            if (game === undefined) {
+                  return false;
+            }
+            return game.phase === Phase.Waiting;
+      }
       public joinGame(code: string, name: string): Game | null {
             if (!name || name.length === 0 || typeof name !== 'string') {
                   console.error('Invalid name: ', name);
@@ -33,8 +40,19 @@ export class Manager {
             }
       }
 
+      public getGameByCode(code: string): Game | null {
+            let game = this.games.find((game) => game.code === code);
+            if (game) {
+                  return game;
+            } else {
+                  return null;
+            }
+      }
       public deleteGame(game: Game): void {
             this.games = this.games.filter((g) => g !== game);
+      }
+      public log(...args: any[]): void {
+            args.forEach((arg) => this.logger.log(arg.toString()));
       }
       private deleteGameByCode(code: string): void {
             this.games = this.games.filter((g) => g.code !== code);

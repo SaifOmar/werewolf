@@ -4,11 +4,12 @@ import { Player } from './player';
 import { Role, RoleClasses, Team } from './role';
 
 import { EventEmitter } from 'events';
-//WARNING: Just random phases
+
 export const enum Phase {
       Waiting = 'waiting',
       Initial = 'initial',
       Night = 'night',
+      PerfomActions = 'perfomActions',
       Day = 'day',
       Voting = 'voting',
       Finished = 'finished',
@@ -27,32 +28,29 @@ export type Vote = {
 };
 
 export class Game extends EventEmitter {
-      public groundRoles: Role[];
-      public players: Player[];
-      public phase: Phase;
+      public groundRoles: Role[] = [];
+      public players: Player[] = [];
+      public phase: Phase = Phase.Waiting;
       public code: string;
       public numberOfWerewolf: number = 3;
       public numberOfMasons: number = 2;
       public logger: Logger;
-      public actions: Action[];
+      public actions: Action[] = [];
       public logsEnabled: boolean = false;
-      public votes: Vote[];
+      public votes: Vote[] = [];
       public currentTimerSec: number;
       public timer: TimerOption = TimerOption.SixMinutes;
       public winners: Team;
+      public playersSeeRoleConfirmed: Player[] = [];
+      public playersPerformedActions: Player[] = [];
       private maxNumberOfPlayers: number = 7;
-      private _availableRoles: Role[];
+      private _availableRoles: Role[] = [];
       private readonly numberOfGroundRoles: number = 3;
 
       public constructor(logger: Logger) {
             super();
             this.logger = logger;
-            this.actions = [];
-            this.votes = [];
             this.code = Math.random().toString(36).substring(2, 10);
-            this._availableRoles = [];
-            this.players = [];
-            this.phase = Phase.Waiting;
             this.currentTimerSec = this.timer * 60;
             // HACK: should implement this well when the server structre is there
             this._availableRoles = getRolesFromDB(this.numberOfWerewolf, this.numberOfMasons);
@@ -65,7 +63,6 @@ export class Game extends EventEmitter {
             if (this.players.length + 1 > this.maxNumberOfPlayers) {
                   // how should I do this?
                   this.logger.error(`Game is full please join another game`);
-                  console.error(`Game is full please join another game`);
                   return;
             }
             if (this.players.find((p) => p.name === name)) {
@@ -83,9 +80,36 @@ export class Game extends EventEmitter {
             this.logGame();
             this.emit('gameStarted');
       }
+      public playerSeenRole(playerId: string): void {
+            if (this.players.find((p) => p.id === playerId) === undefined) {
+                  throw new Error(`Player with id ${playerId} not found`);
+            }
+            if (this.playersSeeRoleConfirmed.find((p) => p.id === playerId) === undefined) {
+                  return;
+            }
+            this.playersSeeRoleConfirmed.push(this.getPlayerById(playerId));
+            if (this.playersSeeRoleConfirmed.length === this.players.length) {
+                  this.startPerformActions();
+            }
+      }
+      public startPerformActions() {
+            this.phase = Phase.PerfomActions;
+            this.emit('perfomActionsStarted');
+      }
+      public playerPerformAction(player: Player) {
+            this.playersPerformedActions.push(player);
+            this.logger.log(`playerPerformAction ${player.name} performed action`);
+
+            this.logger.log(`length of playersPerformedActions: ${this.playersPerformedActions.length}`);
+            if (this.playersPerformedActions.length === this.players.length) {
+                  // this.emit('performActionsFinished');
+                  this.startDay().then(() => {
+                        this.startVoting();
+                  });
+            }
+      }
       public startDay(): Promise<void> {
             this.phase = Phase.Day;
-            console.log('Game state is now day');
             let totalSeconds = this.timer * 60;
             totalSeconds = 3;
             this.emit('dayStarted');
@@ -107,7 +131,16 @@ export class Game extends EventEmitter {
             this.emit('votingStarted');
             this.logger.log('Game state is now voting');
       }
-      public getVoteResults(): Vote[] {
+      public playerVote(player: Player, vote: string) {
+            this.votes.push({ voter: player.id, vote: vote });
+            this.logger.log(`playerVote ${player.name} voted ${vote}`);
+            this.logger.log(`votes: ${this.votes}, length: ${this.votes.length}`);
+            if (this.votes.length === this.players.length) {
+                  this.finish();
+            }
+      }
+
+      public getVoteResults(): Map<string, number> {
             let votes = this.votes;
             let mapVotes = new Map();
             for (let i = 0; i < votes.length; i++) {
@@ -120,20 +153,39 @@ export class Game extends EventEmitter {
                   vote.voter = this.getPlayerById(vote.voter).name;
                   vote.vote = this.getPlayerById(vote.vote).name;
             }
-            this.emit('votesCalculated', mapVotes);
-            return votes;
+            this.votes = votes;
+            return mapVotes;
       }
       public calculateResults(mapVotes: Map<string, number>): string {
             let prev = 0;
             let voted = '';
+            // need to check for draw
+            let check = 0;
             mapVotes.forEach((value, key) => {
+                  if (prev === value) {
+                        prev = value;
+                        check++;
+                  }
+
                   if (prev < value) {
                         prev = value;
                         voted = key;
                   }
             });
-            voted = this.getPlayerById(voted).getRole().team;
-            if (voted === 'werewolf') {
+            if (check === mapVotes.size) {
+                  this.winners = Team.Villains;
+                  return this.winners;
+            }
+
+            let votedPlayerRole = this.getPlayerById(voted).getRole();
+            if (votedPlayerRole.name === 'minion') {
+                  this.winners = Team.Villains;
+            }
+            if (votedPlayerRole.name === Team.Joker) {
+                  this.winners = Team.Joker;
+            }
+
+            if (votedPlayerRole.team === Team.Villains) {
                   this.winners = Team.Heroes;
             } else {
                   this.winners = Team.Villains;
@@ -145,8 +197,11 @@ export class Game extends EventEmitter {
       public finish(): void {
             this.logger.info('Game finished');
             this.phase = Phase.Finished;
-            this.emit('gameFinished');
-            console.log('Game finished');
+            const votes = this.getVoteResults();
+            votes.forEach((value, key) => {
+                  this.logger.log(`Voter: ${key} voted: ${value}`);
+            });
+            this.emit('gameFinished', this.calculateResults(votes));
             this.logGame();
       }
       public restart(): void {
@@ -154,7 +209,6 @@ export class Game extends EventEmitter {
             this.logger.info('Game restarted');
             this.logGame();
             this.phase = Phase.Waiting;
-            console.log('Game restarted, game state is now waiting');
       }
       public getNumberOfPlayers(): number {
             return this.players.length;
@@ -164,6 +218,7 @@ export class Game extends EventEmitter {
             if (player !== undefined) {
                   return player;
             }
+            this.logger.log(`Player with id ${id} not found`);
             throw new Error(`Player with id ${id} not found`);
       }
       public getAvailableRoles(): Role[] {
@@ -182,7 +237,7 @@ export class Game extends EventEmitter {
             let availableRoles = this._availableRoles;
             this.logger.info(`available roles: ${availableRoles.map((r) => r.name)}`);
             if (availableRoles.length < this.players.length + 3) {
-                  console.error('There is not enough roles to assign to all players');
+                  throw new Error('There is not enough roles to assign to all players');
             }
             for (let i = 0; i < this.players.length; i++) {
                   const randomIndex = Math.floor(Math.random() * availableRoles.length);

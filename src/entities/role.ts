@@ -5,6 +5,7 @@ import { Player } from './player';
 export enum Team {
       Villains = 'werewolf',
       Heroes = 'villagers',
+      Joker = 'joker',
 }
 export interface Role {
       id: string;

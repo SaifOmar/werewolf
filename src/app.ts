@@ -1,5 +1,6 @@
 import express from 'express';
 import Logger from './entities/manager';
+import mainRoutes from './routes/routes';
 
 const app = express();
 
@@ -16,4 +17,6 @@ app.use(function (req, res, next) {
       }
       next();
 });
+
+app.use('/', mainRoutes);
 export default app;
