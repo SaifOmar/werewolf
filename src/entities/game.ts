@@ -37,6 +37,7 @@ export class Game extends EventEmitter {
       public actions: Action[];
       public logsEnabled: boolean = false;
       public votes: Vote[];
+      public currentTimerSec: number;
       public timer: TimerOption = TimerOption.SixMinutes;
       public winners: Team;
       private maxNumberOfPlayers: number = 7;
@@ -52,6 +53,7 @@ export class Game extends EventEmitter {
             this._availableRoles = [];
             this.players = [];
             this.phase = Phase.Waiting;
+            this.currentTimerSec = this.timer * 60;
             // HACK: should implement this well when the server structre is there
             this._availableRoles = getRolesFromDB(this.numberOfWerewolf, this.numberOfMasons);
             this.logger.info(`available roles: ${this._availableRoles.map((r) => r.name)}`);
@@ -91,6 +93,8 @@ export class Game extends EventEmitter {
                   const interval = setInterval(() => {
                         this.emit('timerTick', totalSeconds);
                         if (totalSeconds <= 0) {
+                              this.currentTimerSec = 0;
+                              this.emit('timerFinished');
                               clearInterval(interval);
                               resolve();
                         }

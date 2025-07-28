@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { cwd } from 'process';
 import { Game, Phase } from './game';
 //A manager class that douples as a cache layer for running games
 export class Manager {
@@ -32,7 +32,8 @@ export class Manager {
                   return null;
             }
       }
-      private deleteGame(game: Game): void {
+
+      public deleteGame(game: Game): void {
             this.games = this.games.filter((g) => g !== game);
       }
       private deleteGameByCode(code: string): void {
@@ -50,9 +51,8 @@ class Logger {
       public static instance: Logger;
 
       constructor() {
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = path.dirname(__filename);
-            this.filePath = path.join(__dirname, '..', 'logs', 'game.log');
+            const __dirname = cwd();
+            this.filePath = __dirname + '/logs/game.log';
             this.file = this.createFile();
       }
       public static getInstance(): Logger {
