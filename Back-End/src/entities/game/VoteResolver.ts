@@ -1,4 +1,4 @@
-import { Team } from "@werewolf/shared";
+import { Team, ROLE_NAMES } from "@werewolf/shared";
 import type { PlayerId, Vote } from "@werewolf/shared";
 import { Player } from "../Player";
 import { Logger } from "../../utils/Logger";
@@ -92,7 +92,21 @@ export class VoteResolver {
   }
 
   buildActionHistory(players: Player[]): Array<{ playerId: string; role: string; playerName: string; description: string }> {
-    const roleOrder = ["العفريت", "التابع", "الشبيه", "الرمال", "البناي", "الحرامي", "الشقية", "الليم", "الساهر", "الجوكر"];
+    // Wake order, derived from the shared registry so renames can't break it
+    const roleOrder = [
+      ROLE_NAMES.WEREWOLF,
+      ROLE_NAMES.MINION,
+      ROLE_NAMES.CLONE,
+      ROLE_NAMES.SEER,
+      ROLE_NAMES.MASON,
+      ROLE_NAMES.ROBBER,
+      ROLE_NAMES.TROUBLEMAKER,
+      ROLE_NAMES.DRUNK,
+      ROLE_NAMES.WARLOCK,
+      ROLE_NAMES.INSOMNIAC,
+      ROLE_NAMES.JOKER,
+      ROLE_NAMES.ORACLE,
+    ];
     const actionHistory: Array<{ playerId: string; role: string; playerName: string; description: string }> = [];
     for (const roleName of roleOrder) {
       const playersWithRole = players.filter((p) => p.getOriginalRole().name === roleName);

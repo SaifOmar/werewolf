@@ -1,5 +1,5 @@
 import { Role } from "./Role";
-import { ROLE_REGISTRY, Team } from "@werewolf/shared";
+import { ROLE_REGISTRY, ROLE_NAMES, Team } from "@werewolf/shared";
 import { Game } from "../game";
 import { Player } from "../Player";
 import { roleIdOf } from "./roleId";
@@ -60,31 +60,31 @@ export class Clone implements Role {
         switch (clonedRoleName) {
           case "werewolf":
             autoResult = {
-              message: `استنسخت ${targetPlayer.name} وبقيت عفريت… انت في فريق الشر دلوقتي.`,
+              message: `استنسخت ${targetPlayer.name} وبقيت ${ROLE_NAMES.WEREWOLF}… انت في فريق الشر دلوقتي.`,
             };
             break;
 
           case "minion":
             autoResult = {
-              message: `استنسخت ${targetPlayer.name} وبقيت التابع… انت في فريق الشر دلوقتي.`,
+              message: `استنسخت ${targetPlayer.name} وبقيت الـ${ROLE_NAMES.MINION}… انت في فريق الشر دلوقتي.`,
             };
             break;
 
           case "mason":
             autoResult = {
-              message: `استنسخت ${targetPlayer.name} وبقيت بنّاي… هتصحى مع البنايين.`,
+              message: `استنسخت ${targetPlayer.name} وبقيت الـ${ROLE_NAMES.MASON}… هتصحى مع زملائك آخر الليل.`,
             };
             break;
 
           case "insomniac":
             autoResult = {
-              message: `استنسخت ${targetPlayer.name} وبقيت الساهر… هتشيك على دورك آخر الليل.`,
+              message: `استنسخت ${targetPlayer.name} وبقيت الـ${ROLE_NAMES.INSOMNIAC}… هتشيك على دورك آخر الليل.`,
             };
             break;
 
           case "oracle":
             autoResult = {
-              message: `استنسخت ${targetPlayer.name} وبقيت الكاهن… هتيجيك رؤية آخر الليل.`,
+              message: `استنسخت ${targetPlayer.name} وبقيت الـ${ROLE_NAMES.ORACLE}… هتيجيك رؤية آخر الليل.`,
             };
             break;
 

@@ -1,5 +1,5 @@
 import { Role } from "./Role";
-import { ROLE_REGISTRY, Team } from "@werewolf/shared";
+import { ROLE_REGISTRY, ROLE_NAMES, Team } from "@werewolf/shared";
 import { Game } from "../game";
 import { Player } from "../Player";
 import { roleIdOf } from "./roleId";
@@ -37,7 +37,7 @@ export class Mason implements Role {
 
       return {
         masons: otherMasons.map((m) => ({ id: m.id, name: m.name })),
-        message: otherMasons.length > 0 ? `إخوتك البنايين: ${otherMasons.map((m) => m.name).join("، ")}` : "انت البناي الوحيد",
+        message: otherMasons.length > 0 ? `إخوتك في الدور (${ROLE_NAMES.MASON}): ${otherMasons.map((m) => m.name).join("، ")}` : `انت الـ${ROLE_NAMES.MASON} الوحيد`,
       };
     };
   }

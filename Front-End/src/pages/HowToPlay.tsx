@@ -66,7 +66,7 @@ export default function HowToPlay({ onClose }: { onClose: () => void }) {
                 ["جمعوا الشلة", "محتاجين ٦ لاعبين على الأقل عشان نبدأ."],
                 ["الأدوار توزعت", "كل لاعب بياخد دور سرّي، و٣ كروت زيادة بتتحط على الأرض وشها لتحت. متقولش حد دورك."],
                 ["الليل", "الأدوار تصحى واحد ورا التاني بالترتيب وكل واحد يعمل حركته السرية. ركّز كويس في اللي بتعرفه."],
-                ["النقاش", "الكل يفتح عينه ويتكلم. اتهم، دافع، اكدب، اعمل بلوف — استخدم اللي عرفته عشان توصل للعفاريت."],
+                ["النقاش", "الكل يفتح عينه ويتكلم. اتهم، دافع، اكدب، اعمل بلوف — استخدم اللي عرفته عشان توصل للحرامية."],
                 ["التصويت", "الكل يصوت لحد يتصوّد. الأكتر أصوات يخرج بره. صوتك مرة واحدة بس!"],
               ].map(([title, desc], i) => (
                 <div className="htp-step" key={i}>
@@ -79,9 +79,9 @@ export default function HowToPlay({ onClose }: { onClose: () => void }) {
               ))}
               <div className="htp-win">
                 <span className="htp-win-label">مين يكسب؟</span>
-                <p><span className="htp-team village">أهل القرية</span> يكسبوا لو عفريت واحد اتطرد.</p>
-                <p><span className="htp-team villain">العفاريت</span> يكسبوا لو كلهم عاشوا بعد التصويت.</p>
-                <p><span className="htp-team neutral">الجوكر</span> يكسب لوحده لو القرية صوتت عليه.</p>
+                <p><span className="htp-team village">أهل القرية</span> يكسبوا لو حرامي واحد اتطرد.</p>
+                <p><span className="htp-team villain">الحرامية</span> يكسبوا لو كلهم عاشوا بعد التصويت.</p>
+                <p><span className="htp-team neutral">{ROLE_REGISTRY.joker.name}</span> يكسب لوحده لو القرية صوتت عليه.</p>
               </div>
             </>
           )}

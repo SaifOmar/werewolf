@@ -1,4 +1,4 @@
-import { Phase, Team } from "@werewolf/shared";
+import { Phase, Team, ROLE_REGISTRY as R } from "@werewolf/shared";
 import { Game } from "../../entities/game";
 import { Player } from "../../entities/Player";
 import {
@@ -104,7 +104,7 @@ describe("Game Night Phase Feature Tests", () => {
       // 3. Seer action - look at a player
       const seerAction = createSeerAction.seePlayer(minionPlayer);
       const seerResult = seer.performAction()(game, seerPlayer, seerAction);
-      expect(seerResult.role).toBe("التابع");
+      expect(seerResult.role).toBe(R.minion.name);
 
       // 4. Mason action
       const masonAction = { type: "mason" };
@@ -114,9 +114,9 @@ describe("Game Night Phase Feature Tests", () => {
       // 5. Robber action - steal from minion
       const robberAction = createRobberAction(minionPlayer);
       const robberResult = robber.performAction()(game, robberPlayer, robberAction);
-      expect(robberResult.newRole).toBe("التابع");
-      expect(robberPlayer.getRole().name).toBe("التابع");
-      expect(minionPlayer.getRole().name).toBe("الحرامي");
+      expect(robberResult.newRole).toBe(R.minion.name);
+      expect(robberPlayer.getRole().name).toBe(R.minion.name);
+      expect(minionPlayer.getRole().name).toBe(R.robber.name);
 
       // 6. Troublemaker action - swap minion and drunk (not themselves)
       const troublemakerAction = createTroublemakerAction(minionPlayer, drunkenPlayer);
@@ -125,20 +125,20 @@ describe("Game Night Phase Feature Tests", () => {
       expect(troublemakerResult.player2Name).toBe("Drunk Player");
       // After swap: minion (who has Robber) and drunk swap
       // So minion now has Drunk, drunk now has Robber (from minion)
-      expect(minionPlayer.getRole().name).toBe("الليم");
-      expect(drunkenPlayer.getRole().name).toBe("الحرامي");
+      expect(minionPlayer.getRole().name).toBe(R.drunk.name);
+      expect(drunkenPlayer.getRole().name).toBe(R.robber.name);
 
       // 7. Drunk action - swap with ground
       const drunkerGroundRoleId = groundRoles[0].id;
       const drunkAction = createDrunkAction(drunkerGroundRoleId);
       const drunkResult = drunk.performAction()(game, drunkenPlayer, drunkAction);
       expect(drunkResult.success).toBe(true);
-      expect(drunkenPlayer.getRole().name).toBe("الجوكر"); // took ground role
+      expect(drunkenPlayer.getRole().name).toBe(R.joker.name); // took ground role
 
       // 8. Insomniac action - check current role
       const insomniackAction = createInsomniacAction();
       const insomniacResult = insomniac.performAction()(game, insomniakPlayer, insomniackAction);
-      expect(insomniacResult.currentRole).toBe("الساهر");
+      expect(insomniacResult.currentRole).toBe(R.insomniac.name);
       expect(insomniacResult.hasChanged).toBe(false);
 
       // All actions completed successfully
@@ -148,7 +148,7 @@ describe("Game Night Phase Feature Tests", () => {
 
   describe("Clone in Game Night Phase", () => {
     it("should handle clone copying passive role (Werewolf)", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const werewolfTarget = new Player("Werewolf Target");
       const anotherWerewolf = new Player("Another Werewolf");
 
@@ -169,14 +169,14 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(werewolfTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("العفريت");
+      expect(cloneResult.clonedRole).toBe(R.werewolf.name);
       expect(cloneResult.needsSecondAction).toBe(false); // Werewolf is passive
-      expect(clonePlayer.getRole().name).toBe("العفريت");
-      expect(cloneResult.autoResult.message).toContain("بقيت عفريت");
+      expect(clonePlayer.getRole().name).toBe(R.werewolf.name);
+      expect(cloneResult.autoResult.message).toContain(`بقيت ${R.werewolf.name}`);
     });
 
     it("should handle clone copying active role (Seer) and needing second action", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const seerTarget = new Player("Seer Target");
       const vulnerablePlayer = new Player("Vulnerable");
 
@@ -196,16 +196,16 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(seerTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("الرمال");
+      expect(cloneResult.clonedRole).toBe(R.seer.name);
       expect(cloneResult.needsSecondAction).toBe(true); // Seer is active
-      expect(clonePlayer.getRole().name).toBe("الرمال");
-      expect(cloneResult.message).toContain("الرمال");
+      expect(clonePlayer.getRole().name).toBe(R.seer.name);
+      expect(cloneResult.message).toContain(R.seer.name);
     });
 
     it("should handle clone copying Minion (passive role)", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const minionTarget = new Player("Minion Target");
-      const werewolfInGame = new Player("العفريت");
+      const werewolfInGame = new Player(R.werewolf.name);
 
       const clone = new Clone();
       const targetMinion = new Minion();
@@ -223,14 +223,14 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(minionTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("التابع");
+      expect(cloneResult.clonedRole).toBe(R.minion.name);
       expect(cloneResult.needsSecondAction).toBe(false); // Minion is passive
-      expect(clonePlayer.getRole().name).toBe("التابع");
-      expect(cloneResult.autoResult.message).toContain("التابع");
+      expect(clonePlayer.getRole().name).toBe(R.minion.name);
+      expect(cloneResult.autoResult.message).toContain(R.minion.name);
     });
 
     it("should handle clone copying Drunk and swapping with ground card", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const drunkTarget = new Player("Drunk Target");
 
       const clone = new Clone();
@@ -249,14 +249,14 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(drunkTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("الليم");
+      expect(cloneResult.clonedRole).toBe(R.drunk.name);
       expect(cloneResult.needsSecondAction).toBe(false);
       expect(cloneResult.autoResult.success).toBe(true);
       expect(cloneResult.autoResult.targetGroundIndex).toBeGreaterThanOrEqual(0);
     });
 
     it("should handle clone copying Robber and swapping roles", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const robberTarget = new Player("Robber Target");
       const victimPlayer = new Player("Victim");
 
@@ -277,13 +277,13 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(robberTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("الحرامي");
+      expect(cloneResult.clonedRole).toBe(R.robber.name);
       expect(cloneResult.needsSecondAction).toBe(true); // Robber is active
-      expect(clonePlayer.getRole().name).toBe("الحرامي");
+      expect(clonePlayer.getRole().name).toBe(R.robber.name);
     });
 
     it("should handle clone copying Troublemaker and swapping two targets", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const troublemakerTarget = new Player("Troublemaker Target");
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -305,13 +305,13 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(troublemakerTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("الشقية");
+      expect(cloneResult.clonedRole).toBe(R.troublemaker.name);
       expect(cloneResult.needsSecondAction).toBe(true); // Troublemaker is active
-      expect(clonePlayer.getRole().name).toBe("الشقية");
+      expect(clonePlayer.getRole().name).toBe(R.troublemaker.name);
     });
 
     it("should handle clone copying Insomniac (passive role)", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const insomniacTarget = new Player("Insomniac Target");
 
       const clone = new Clone();
@@ -329,15 +329,15 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(insomniacTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("الساهر");
+      expect(cloneResult.clonedRole).toBe(R.insomniac.name);
       expect(cloneResult.needsSecondAction).toBe(false); // Insomniac is passive
-      expect(clonePlayer.getRole().name).toBe("الساهر");
-      expect(clonePlayer.getOriginalRole().name).toBe("الشبيه");
-      expect(cloneResult.autoResult.message).toContain("الساهر");
+      expect(clonePlayer.getRole().name).toBe(R.insomniac.name);
+      expect(clonePlayer.getOriginalRole().name).toBe(R.clone.name);
+      expect(cloneResult.autoResult.message).toContain(R.insomniac.name);
     });
 
     it("should handle clone copying Joker (passive role)", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const jokerTarget = new Player("Joker Target");
 
       const clone = new Clone();
@@ -356,15 +356,15 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(jokerTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("الجوكر");
+      expect(cloneResult.clonedRole).toBe(R.joker.name);
       expect(cloneResult.needsSecondAction).toBe(false); // Joker is passive
-      expect(clonePlayer.getRole().name).toBe("الجوكر");
+      expect(clonePlayer.getRole().name).toBe(R.joker.name);
       expect(cloneResult.autoResult.groundRole).toBeTruthy();
       expect(cloneResult.autoResult.targetGroundIndex).toBeGreaterThanOrEqual(0);
     });
 
     it("should handle clone copying Mason and seeing other masons", () => {
-      const clonePlayer = new Player("الشبيه");
+      const clonePlayer = new Player(R.clone.name);
       const masonTarget = new Player("Mason Target");
       const otherMason = new Player("Other Mason");
 
@@ -385,11 +385,11 @@ describe("Game Night Phase Feature Tests", () => {
       const cloneAction = createCloneAction(masonTarget);
       const cloneResult = clone.performAction()(game, clonePlayer, cloneAction);
 
-      expect(cloneResult.clonedRole).toBe("البناي");
+      expect(cloneResult.clonedRole).toBe(R.mason.name);
       expect(cloneResult.needsSecondAction).toBe(false); // Mason is passive
-      expect(clonePlayer.getRole().name).toBe("البناي");
+      expect(clonePlayer.getRole().name).toBe(R.mason.name);
       expect(cloneResult.delayedWake).toBe(true);
-      expect(cloneResult.autoResult.message).toContain("هتصحى مع البنايين");
+      expect(cloneResult.autoResult.message).toContain("هتصحى مع زملائك");
     });
   });
 
@@ -415,22 +415,22 @@ describe("Game Night Phase Feature Tests", () => {
       // Robber steals from player3
       const robberAction = createRobberAction(player3);
       const robberResult = robber.performAction()(game, player1, robberAction);
-      expect(player1.getRole().name).toBe("العفريت");
-      expect(player3.getRole().name).toBe("الحرامي");
+      expect(player1.getRole().name).toBe(R.werewolf.name);
+      expect(player3.getRole().name).toBe(R.robber.name);
 
       // Troublemaker swaps player3 and player4 (not including themselves)
       const troublemakerAction = createTroublemakerAction(player3, player4);
       const troublemakerResult = troublemaker.performAction()(game, player2, troublemakerAction);
-      expect(player3.getRole().name).toBe("الرمال");
-      expect(player4.getRole().name).toBe("الحرامي");
+      expect(player3.getRole().name).toBe(R.seer.name);
+      expect(player4.getRole().name).toBe(R.robber.name);
 
       // Final state: role swaps happened correctly
-      expect(player1.getRole().name).toBe("العفريت");
-      expect(player2.getRole().name).toBe("الشقية");
+      expect(player1.getRole().name).toBe(R.werewolf.name);
+      expect(player2.getRole().name).toBe(R.troublemaker.name);
     });
 
     it("should handle seer examining before and after role swaps", () => {
-      const seerPlayer = new Player("الرمال");
+      const seerPlayer = new Player(R.seer.name);
       const targetPlayer = new Player("Target");
 
       const seer = new Seer();
@@ -444,7 +444,7 @@ describe("Game Night Phase Feature Tests", () => {
       // Seer examines target - sees Minion
       const seerAction1 = createSeerAction.seePlayer(targetPlayer);
       const result1 = seer.performAction()(game, seerPlayer, seerAction1);
-      expect(result1.role).toBe("التابع");
+      expect(result1.role).toBe(R.minion.name);
 
       // Simulate role change (robber steals)
       const robber = new Robber();
@@ -455,12 +455,12 @@ describe("Game Night Phase Feature Tests", () => {
       // Seer examines target again - now sees Seer
       const seerAction2 = createSeerAction.seePlayer(targetPlayer);
       const result2 = seer.performAction()(game, seerPlayer, seerAction2);
-      expect(result2.role).toBe("الرمال");
+      expect(result2.role).toBe(R.seer.name);
     });
 
     it("should handle insomniac detecting role change after night actions", () => {
-      const insomniakPlayer = new Player("الساهر");
-      const drunkenPlayer = new Player("الليم");
+      const insomniakPlayer = new Player(R.insomniac.name);
+      const drunkenPlayer = new Player(R.drunk.name);
 
       const insomniak = new Insomniac();
       const drunk = new Drunk();
@@ -475,7 +475,7 @@ describe("Game Night Phase Feature Tests", () => {
       const insomniakActionBefore = createInsomniacAction();
       const resultBefore = insomniak.performAction()(game, insomniakPlayer, insomniakActionBefore);
       expect(resultBefore.hasChanged).toBe(false);
-      expect(resultBefore.currentRole).toBe("الساهر");
+      expect(resultBefore.currentRole).toBe(R.insomniac.name);
 
       // Drunk swaps with ground (becomes Werewolf)
       const drunkAction = createDrunkAction(groundRole.id);
@@ -485,7 +485,7 @@ describe("Game Night Phase Feature Tests", () => {
       const insomniakActionAfter = createInsomniacAction();
       const resultAfter = insomniak.performAction()(game, insomniakPlayer, insomniakActionAfter);
       expect(resultAfter.hasChanged).toBe(false);
-      expect(resultAfter.currentRole).toBe("الساهر");
+      expect(resultAfter.currentRole).toBe(R.insomniac.name);
     });
   });
 });

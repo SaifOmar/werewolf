@@ -1,7 +1,8 @@
 import { Role } from "./Role";
-import { ROLE_REGISTRY, Team } from "@werewolf/shared";
+import { ROLE_REGISTRY, ROLE_NAMES, Team } from "@werewolf/shared";
 import { Game } from "../game";
 import { Player } from "../Player";
+import { roleIdOf } from "./roleId";
 
 export interface OracleAction {
   type: "oracle";
@@ -66,108 +67,93 @@ export class Oracle implements Role {
  * Builds a role-only vision message from an action result.
  * The Oracle sees role names, NOT player names.
  */
-const AR_TO_ID: Record<string, string> = {
-  "العفريت": "werewolf",
-  "التابع": "minion",
-  "الرمال": "seer",
-  "الحرامي": "robber",
-  "الشقية": "troublemaker",
-  "البناي": "mason",
-  "الليم": "drunk",
-  "الساهر": "insomniac",
-  "الشبيه": "clone",
-  "الجوكر": "joker",
-  "الساحر": "warlock",
-  "الكاهن": "oracle",
-};
-
 function buildVisionMessage(roleName: string, result: Record<string, unknown>): string {
-  const r = AR_TO_ID[roleName] ?? roleName.toLowerCase();
+  const r = roleIdOf(roleName);
 
   switch (r) {
     case "werewolf": {
       if (result.isAlone === true && typeof result.groundCard === "string") {
-        return `العفريت شاف ${result.groundCard} على الأرض.`;
+        return `${ROLE_NAMES.WEREWOLF} شاف ${result.groundCard} على الأرض.`;
       }
       const wolves = result.werewolves as Array<{ name: string }> | undefined;
       if (Array.isArray(wolves) && wolves.length > 0) {
         const names = wolves.map((w) => w.name).join(", ");
-        return `العفريت شاف إن شلته هي: ${names}.`;
+        return `${ROLE_NAMES.WEREWOLF} شاف إن شلته هي: ${names}.`;
       }
-      return "العفريت عمل حركته.";
+      return `${ROLE_NAMES.WEREWOLF} عمل حركته.`;
     }
 
     case "minion": {
       const wolves = result.werewolves as Array<{ name: string }> | undefined;
       if (Array.isArray(wolves) && wolves.length > 0) {
         const names = wolves.map((w) => w.name).join(", ");
-        return `التابع شاف إن العفاريت هم: ${names}.`;
+        return `الـ${ROLE_NAMES.MINION} شاف إن الحرامية هم: ${names}.`;
       }
-      return "التابع ملقاش عفاريت.";
+      return `الـ${ROLE_NAMES.MINION} ملقاش حد.`;
     }
 
     case "seer": {
       if (result.actionType === "player" && typeof result.role === "string") {
-        return `الرمال شاف ${result.role}.`;
+        return `${ROLE_NAMES.SEER} شافت ${result.role}.`;
       }
       if (result.actionType === "ground" && typeof result.groundRole1 === "string" && typeof result.groundRole2 === "string") {
-        return `الرمال شاف ${result.groundRole1} و${result.groundRole2} على الأرض.`;
+        return `${ROLE_NAMES.SEER} شافت ${result.groundRole1} و${result.groundRole2} على الأرض.`;
       }
-      return "الرمال عمل حركته.";
+      return `${ROLE_NAMES.SEER} عملت حركتها.`;
     }
 
     case "clone": {
       if (typeof result.clonedRole === "string") {
-        return `الشبيه استنسخ دور ${result.clonedRole}.`;
+        return `الـ${ROLE_NAMES.CLONE} استنسخ دور ${result.clonedRole}.`;
       }
-      return "الشبيه عمل حركته.";
+      return `الـ${ROLE_NAMES.CLONE} عمل حركته.`;
     }
 
     case "mason": {
       const masons = result.masons as Array<{ name: string }> | undefined;
       if (Array.isArray(masons) && masons.length > 0) {
         const names = masons.map((m) => m.name).join(", ");
-        return `البناي شاف إخوته البنايين: ${names}.`;
+        return `الـ${ROLE_NAMES.MASON} شاف زملاءه: ${names}.`;
       }
-      return "البناي لوحدو.";
+      return `الـ${ROLE_NAMES.MASON} لوحدو.`;
     }
 
     case "robber": {
       if (typeof result.newRole === "string") {
-        return `الحرامي سرق دور وبقى ${result.newRole}.`;
+        return `الـ${ROLE_NAMES.ROBBER} سرق دور وبقى ${result.newRole}.`;
       }
-      return "الحرامي عمل حركته.";
+      return `الـ${ROLE_NAMES.ROBBER} عمل حركته.`;
     }
 
     case "troublemaker": {
       if (typeof result.player1Name === "string" && typeof result.player2Name === "string") {
-        return `الشقية بدلت بين ${result.player1Name} و${result.player2Name}.`;
+        return `الـ${ROLE_NAMES.TROUBLEMAKER} بدلت بين ${result.player1Name} و${result.player2Name}.`;
       }
-      return "الشقية بدلت لاعبين.";
+      return `الـ${ROLE_NAMES.TROUBLEMAKER} بدلت لاعبين.`;
     }
 
     case "drunk":
-      return "الليم بدل دوره بكارت أرض.";
+      return `الـ${ROLE_NAMES.DRUNK} بدل دوره بكارت أرض.`;
 
     case "insomniac": {
       if (result.hasChanged === true && typeof result.currentRole === "string") {
-        return `دور الساهر اتبادل بقى ${result.currentRole}.`;
+        return `دور الـ${ROLE_NAMES.INSOMNIAC} اتبادل بقى ${result.currentRole}.`;
       }
-      return "دور الساهر ماتبادلش.";
+      return `دور الـ${ROLE_NAMES.INSOMNIAC} ماتبادلش.`;
     }
 
     case "joker": {
       if (typeof result.groundRole === "string") {
-        return `الجوكر شاف ${result.groundRole} على الأرض.`;
+        return `الـ${ROLE_NAMES.JOKER} شاف ${result.groundRole} على الأرض.`;
       }
-      return "الجوكر عمل حركته.";
+      return `الـ${ROLE_NAMES.JOKER} عمل حركته.`;
     }
 
     case "warlock": {
       if (typeof result.targetName === "string") {
-        return `الساحر بدل دور ${result.targetName} بكارت أرض.`;
+        return `${ROLE_NAMES.WARLOCK} بدل دور ${result.targetName} بكارت أرض.`;
       }
-      return "الساحر بدل دور لاعب بكارت أرض.";
+      return `${ROLE_NAMES.WARLOCK} بدل دور لاعب بكارت أرض.`;
     }
 
     default:

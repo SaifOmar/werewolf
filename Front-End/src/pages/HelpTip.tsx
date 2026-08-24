@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ROLE_REGISTRY } from "@werewolf/shared";
 
 // Contextual help tips per game phase
 const TIPS: Record<string, string[]> = {
@@ -14,8 +15,8 @@ const TIPS: Record<string, string[]> = {
   ],
   night: [
     "لو صوتك وقع، متقلقش — هتترجع تلقائي لما النت يرجع.",
-    "الرمال (الحارس) يقدر يشوف كارتين الأرض بدل لاعب واحد.",
-    "الحرامي بيتبادل دوره مع هدفه — فكر مين نفسه يستاهل سرقة دوره.",
+    `${ROLE_REGISTRY.seer.name} تقدر تشوف كارتين الأرض بدل لاعب واحد.`,
+    `${ROLE_REGISTRY.robber.name} بيتبادل دوره مع هدفه — فكر مين نفسه يستاهل سرقة دوره.`,
   ],
   discussion: [
     "اسمع اللي قالوا قبل ما تتكلم — المعلومات أهم من الدفاع.",

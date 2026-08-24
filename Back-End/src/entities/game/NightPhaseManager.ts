@@ -1,6 +1,7 @@
 import { Player } from "../Player";
 import { Game } from "../game/Game";
 import { roleIdOf } from "../roles/roleId";
+import { ROLE_NAMES } from "@werewolf/shared";
 
 
 /**
@@ -9,19 +10,20 @@ import { roleIdOf } from "../roles/roleId";
  */
 
 export class NightPhaseManager {
+  /** Wake-slot duration per role, keyed by role id. */
   private roleTimers: Map<string, number> = new Map([
-    ["العفريت", 10],
-    ["التابع", 10],
-    ["الشبيه", 20],
-    ["الرمال", 20],
-    ["البناي", 10],
-    ["الحرامي", 20],
-    ["الشقية", 20],
-    ["الليم", 10],
-    ["الساحر", 20],
-    ["الساهر", 10],
-    ["الجوكر", 10],
-    ["الكاهن", 10],
+    ["werewolf", 10],
+    ["minion", 10],
+    ["clone", 20],
+    ["seer", 20],
+    ["mason", 10],
+    ["robber", 20],
+    ["troublemaker", 20],
+    ["drunk", 10],
+    ["warlock", 20],
+    ["insomniac", 10],
+    ["joker", 10],
+    ["oracle", 10],
   ]);
 
   private nightMainTimer: ReturnType<typeof setTimeout> | null = null;
@@ -36,7 +38,7 @@ export class NightPhaseManager {
   get roleQueueWithTimer(): { roleName: string; seconds: number }[] {
     const rolesInGame = this.host.roleQueue;
     return rolesInGame.map((roleName) => {
-      const seconds = this.roleTimers.get(roleName);
+      const seconds = this.roleTimers.get(roleIdOf(roleName));
       if (!seconds) {
         throw new Error(`Role ${roleName} has no timer`);
       }
@@ -49,7 +51,7 @@ export class NightPhaseManager {
 
     let mainTimerSeconds = 0;
     this.host.roleQueue.forEach((role) => {
-      mainTimerSeconds += this.roleTimers.get(role) || 10;
+      mainTimerSeconds += this.roleTimers.get(roleIdOf(role)) || 10;
     });
     mainTimerSeconds += 5;
 
@@ -405,7 +407,7 @@ export class NightPhaseManager {
 
         const result = {
           masons: masons.map((m) => ({ id: m.id, name: m.name })),
-          message: masons.length > 0 ? `إخوتك البنايين: ${masons.map((m) => m.name).join("، ")}` : "انت البناي الوحيد",
+          message: masons.length > 0 ? `إخوتك في الدور (${ROLE_NAMES.MASON}): ${masons.map((m) => m.name).join("، ")}` : `انت الـ${ROLE_NAMES.MASON} الوحيد`,
         };
 
         (player as any).lastActionResult = {
@@ -434,10 +436,10 @@ export class NightPhaseManager {
         const currentRole = player.getRole();
         const hasChanged = roleIdOf(currentRole.name) !== "insomniac";
         const result = {
-          originalRole: "الساهر",
+          originalRole: ROLE_NAMES.INSOMNIAC,
           currentRole: currentRole.name,
           hasChanged,
-          message: hasChanged ? `دورك اتغير من الساهر لـ${currentRole.name}!` : "دورك لسه الساهر… محدش لمسك.",
+          message: hasChanged ? `دورك اتغير من ${ROLE_NAMES.INSOMNIAC} لـ${currentRole.name}!` : `دورك لسه ${ROLE_NAMES.INSOMNIAC}… محدش لمسك.`,
         };
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

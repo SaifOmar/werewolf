@@ -1,4 +1,4 @@
-import { Phase, Team } from "@werewolf/shared";
+import { Phase, Team, ROLE_REGISTRY as R } from "@werewolf/shared";
 import { Game } from "../../entities/game";
 import { Player } from "../../entities/Player";
 import {
@@ -52,7 +52,7 @@ describe("Role Tests", () => {
     game.players = [];
   });
 
-  describe("العفريت", () => {
+  describe(R.werewolf.name, () => {
     it("should see other werewolves when not alone", () => {
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -95,7 +95,7 @@ describe("Role Tests", () => {
       const result = werewolf.performAction()(game, player1, action);
 
       expect(result.isAlone).toBe(true);
-      expect(["الليم", "الرمال", "الحرامي"]).toContain(result.groundCard);
+      expect([R.drunk.name, R.seer.name, R.robber.name]).toContain(result.groundCard);
     });
 
     it("should throw on invalid action", () => {
@@ -112,7 +112,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الرمال", () => {
+  describe(R.seer.name, () => {
     it("should see a player's role", () => {
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -129,7 +129,7 @@ describe("Role Tests", () => {
 
       expect(result.targetPlayerId).toBe(player2.id);
       expect(result.playerName).toBe("Player2");
-      expect(result.role).toBe("العفريت");
+      expect(result.role).toBe(R.werewolf.name);
       expect(result.message).toContain("Player2");
     });
 
@@ -147,9 +147,9 @@ describe("Role Tests", () => {
       const result = seer.performAction()(game, player1, action);
 
       expect(result.groundRole1Id).toBe(groundRole1.id);
-      expect(result.groundRole1).toBe("التابع");
+      expect(result.groundRole1).toBe(R.minion.name);
       expect(result.groundRole2Id).toBe(groundRole2.id);
-      expect(result.groundRole2).toBe("البناي");
+      expect(result.groundRole2).toBe(R.mason.name);
     });
 
     it("should throw on invalid action type", () => {
@@ -166,7 +166,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("التابع", () => {
+  describe(R.minion.name, () => {
     it("should see all werewolves in play", () => {
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -230,7 +230,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الليم", () => {
+  describe(R.drunk.name, () => {
     it("should swap role with ground card", () => {
       const player1 = new Player("Player1");
       const drunk = new Drunk();
@@ -247,8 +247,8 @@ describe("Role Tests", () => {
       expect(result.success).toBe(true);
       expect(result.targetRoleId).toBe(groundRole.id);
       expect(result.targetGroundIndex).toBe(0);
-      expect(player1.getRole().name).toBe("العفريت");
-      expect(game.groundRoles[0].name).toBe("الليم");
+      expect(player1.getRole().name).toBe(R.werewolf.name);
+      expect(game.groundRoles[0].name).toBe(R.drunk.name);
     });
 
     it("should swap with a random ground card when no target is supplied", () => {
@@ -265,8 +265,8 @@ describe("Role Tests", () => {
       expect(result.targetRoleId).toBeTruthy();
       expect(result.targetGroundIndex).toBeGreaterThanOrEqual(0);
       expect(result.targetGroundIndex).toBeLessThan(3);
-      expect(game.groundRoles[result.targetGroundIndex].name).toBe("الليم");
-      expect(player1.getRole().name).not.toBe("الليم");
+      expect(game.groundRoles[result.targetGroundIndex].name).toBe(R.drunk.name);
+      expect(player1.getRole().name).not.toBe(R.drunk.name);
     });
 
     it("should throw on invalid ground role id", () => {
@@ -297,7 +297,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الحرامي", () => {
+  describe(R.robber.name, () => {
     it("should swap role with target player", () => {
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -312,15 +312,15 @@ describe("Role Tests", () => {
       const action = createRobberAction(player2);
       const result = robber.performAction()(game, player1, action);
 
-      expect(result.newRole).toBe("العفريت");
-      expect(player1.getRole().name).toBe("العفريت");
-      expect(player2.getRole().name).toBe("الحرامي");
+      expect(result.newRole).toBe(R.werewolf.name);
+      expect(player1.getRole().name).toBe(R.werewolf.name);
+      expect(player2.getRole().name).toBe(R.robber.name);
     });
 
     it("should steal a clone's current copied role, not the clone card", () => {
-      const robberPlayer = new Player("الحرامي");
-      const clonePlayer = new Player("الشبيه");
-      const seerPlayer = new Player("الرمال");
+      const robberPlayer = new Player(R.robber.name);
+      const clonePlayer = new Player(R.clone.name);
+      const seerPlayer = new Player(R.seer.name);
       const robber = new Robber();
       const clone = new Clone();
       const seer = new Seer();
@@ -335,9 +335,9 @@ describe("Role Tests", () => {
 
       const result = robber.performAction()(game, robberPlayer, createRobberAction(clonePlayer));
 
-      expect(result.newRole).toBe("الرمال");
-      expect(robberPlayer.getRole().name).toBe("الرمال");
-      expect(clonePlayer.getRole().name).toBe("الحرامي");
+      expect(result.newRole).toBe(R.seer.name);
+      expect(robberPlayer.getRole().name).toBe(R.seer.name);
+      expect(clonePlayer.getRole().name).toBe(R.robber.name);
     });
 
     it("should throw on invalid action", () => {
@@ -354,7 +354,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الشقية", () => {
+  describe(R.troublemaker.name, () => {
     it("should swap roles of two target players", () => {
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -376,8 +376,8 @@ describe("Role Tests", () => {
       expect(result.player1Name).toBe("Player2");
       expect(result.player2Id).toBe(player3.id);
       expect(result.player2Name).toBe("Player3");
-      expect(player2.getRole().name).toBe("الرمال");
-      expect(player3.getRole().name).toBe("العفريت");
+      expect(player2.getRole().name).toBe(R.seer.name);
+      expect(player3.getRole().name).toBe(R.werewolf.name);
     });
 
     it("should throw on invalid action", () => {
@@ -394,7 +394,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("البناي", () => {
+  describe(R.mason.name, () => {
     it("should see other masons", () => {
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -434,12 +434,12 @@ describe("Role Tests", () => {
       const result = mason.performAction()(game, player1, action);
 
       expect(result.masons).toHaveLength(0);
-      expect(result.message).toContain("البناي الوحيد");
+      expect(result.message).toContain(`${R.mason.name} الوحيد`);
     });
 
     it("should see a clone who copied Mason as a fellow Mason", () => {
-      const masonPlayer = new Player("البناي");
-      const clonePlayer = new Player("الشبيه");
+      const masonPlayer = new Player(R.mason.name);
+      const clonePlayer = new Player(R.clone.name);
       const targetMasonPlayer = new Player("Target Mason");
       const mason = new Mason();
       const clone = new Clone();
@@ -455,7 +455,7 @@ describe("Role Tests", () => {
 
       const result = mason.performAction()(game, masonPlayer, { type: "mason" });
 
-      expect(result.masons.map((m: { name: string }) => m.name)).toContain("الشبيه");
+      expect(result.masons.map((m: { name: string }) => m.name)).toContain(R.clone.name);
       expect(result.masons.map((m: { name: string }) => m.name)).toContain("Target Mason");
     });
 
@@ -473,7 +473,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الجوكر", () => {
+  describe(R.joker.name, () => {
     it("should look at a ground card", () => {
       const player1 = new Player("Player1");
       const joker = new Joker();
@@ -488,8 +488,8 @@ describe("Role Tests", () => {
 
       expect(result.targetRoleId).toBe(groundRole.id);
       expect(result.targetGroundIndex).toBe(0);
-      expect(result.groundRole).toBe("العفريت");
-      expect(result.message).toContain("العفريت");
+      expect(result.groundRole).toBe(R.werewolf.name);
+      expect(result.message).toContain(R.werewolf.name);
     });
 
     it("should look at a random ground card when no target is supplied", () => {
@@ -505,7 +505,7 @@ describe("Role Tests", () => {
       expect(result.targetRoleId).toBeTruthy();
       expect(result.targetGroundIndex).toBeGreaterThanOrEqual(0);
       expect(result.targetGroundIndex).toBeLessThan(3);
-      expect(["العفريت", "البناي", "الليم"]).toContain(result.groundRole);
+      expect([R.werewolf.name, R.mason.name, R.drunk.name]).toContain(result.groundRole);
     });
 
     it("should throw on invalid ground role id", () => {
@@ -536,7 +536,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الساهر", () => {
+  describe(R.insomniac.name, () => {
     it("should return current role", () => {
       const player1 = new Player("Player1");
       const insomniac = new Insomniac();
@@ -548,8 +548,8 @@ describe("Role Tests", () => {
       const action = createInsomniacAction();
       const result = insomniac.performAction()(game, player1, action);
 
-      expect(result.currentRole).toBe("الساهر");
-      expect(result.originalRole).toBe("الساهر");
+      expect(result.currentRole).toBe(R.insomniac.name);
+      expect(result.originalRole).toBe(R.insomniac.name);
       expect(result.hasChanged).toBe(false);
     });
 
@@ -568,8 +568,8 @@ describe("Role Tests", () => {
       const action = createInsomniacAction();
       const result = insomniac.performAction()(game, player1, action);
 
-      expect(result.currentRole).toBe("العفريت");
-      expect(result.originalRole).toBe("الساهر");
+      expect(result.currentRole).toBe(R.werewolf.name);
+      expect(result.originalRole).toBe(R.insomniac.name);
       expect(result.hasChanged).toBe(true);
     });
 
@@ -587,7 +587,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الساحر", () => {
+  describe(R.warlock.name, () => {
     it("should swap a target player's role with a random ground card and report the exact target", () => {
       const player1 = new Player("Player1");
       const player2 = new Player("Player2");
@@ -610,8 +610,8 @@ describe("Role Tests", () => {
       expect(result.targetName).toBe("Player2");
       expect(result.targetRoleId).toBe(selectedGroundRole.id);
       expect(result.targetGroundIndex).toBe(1);
-      expect(player2.getRole().name).toBe("الرمال");
-      expect(game.groundRoles[1].name).toBe("العفريت");
+      expect(player2.getRole().name).toBe(R.seer.name);
+      expect(game.groundRoles[1].name).toBe(R.werewolf.name);
     });
 
     it("should throw when targeting themselves", () => {
@@ -628,27 +628,27 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الكاهن", () => {
+  describe(R.oracle.name, () => {
     it("should receive a message from a random previous player action result", () => {
-      const oraclePlayer = new Player("الكاهن");
-      const robberPlayer = new Player("الحرامي");
+      const oraclePlayer = new Player(R.oracle.name);
+      const robberPlayer = new Player(R.robber.name);
       const oracle = new Oracle();
 
       game.players = [oraclePlayer, robberPlayer];
       oraclePlayer.AddRole(oracle);
       robberPlayer.AddRole(new Robber());
-      robberPlayer.lastActionResult = { newRole: "العفريت", message: "Robber stole a role" };
+      robberPlayer.lastActionResult = { newRole: R.werewolf.name, message: "Robber stole a role" };
 
       const result = oracle.performAction()(game, oraclePlayer, createOracleAction());
 
       expect(result.hasVision).toBe(true);
-      expect(result.sourceRole).toBe("الحرامي");
-      expect(result.vision).toBe("الحرامي سرق دور وبقى العفريت.");
+      expect(result.sourceRole).toBe(R.robber.name);
+      expect(result.vision).toBe(`الـ${R.robber.name} سرق دور وبقى ${R.werewolf.name}.`);
       expect(result.message).toBe(result.vision);
     });
 
     it("should return a silent message when no previous action results exist", () => {
-      const oraclePlayer = new Player("الكاهن");
+      const oraclePlayer = new Player(R.oracle.name);
       const oracle = new Oracle();
 
       game.players = [oraclePlayer];
@@ -661,7 +661,7 @@ describe("Role Tests", () => {
     });
   });
 
-  describe("الشبيه", () => {
+  describe(R.clone.name, () => {
     // Helper function to setup clone test
     const setupCloneTest = (targetRole: any, otherRoles: any[] = []) => {
       const clonePlayer = new Player("Cloner");
@@ -690,10 +690,10 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("العفريت");
+        expect(result.clonedRole).toBe(R.werewolf.name);
         expect(result.needsSecondAction).toBe(false);
-        expect(clonePlayer.getRole().name).toBe("العفريت");
-        expect(result.message).toContain("بقيت عفريت");
+        expect(clonePlayer.getRole().name).toBe(R.werewolf.name);
+        expect(result.message).toContain(`بقيت ${R.werewolf.name}`);
       });
 
       it("should clone Minion", () => {
@@ -702,10 +702,10 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("التابع");
+        expect(result.clonedRole).toBe(R.minion.name);
         expect(result.needsSecondAction).toBe(false);
-        expect(clonePlayer.getRole().name).toBe("التابع");
-        expect(result.message).toContain("التابع");
+        expect(clonePlayer.getRole().name).toBe(R.minion.name);
+        expect(result.message).toContain(R.minion.name);
       });
 
       it("should clone Mason and see other masons", () => {
@@ -715,12 +715,12 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("البناي");
+        expect(result.clonedRole).toBe(R.mason.name);
         expect(result.needsSecondAction).toBe(false);
-        expect(clonePlayer.getRole().name).toBe("البناي");
+        expect(clonePlayer.getRole().name).toBe(R.mason.name);
         expect(result.delayedWake).toBe(true);
-        expect(result.autoResult.message).toContain("هتصحى مع البنايين");
-        expect(result.message).toContain("البناي");
+        expect(result.autoResult.message).toContain("هتصحى مع زملائك");
+        expect(result.message).toContain(R.mason.name);
       });
 
       it("should clone Insomniac", () => {
@@ -729,12 +729,12 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("الساهر");
+        expect(result.clonedRole).toBe(R.insomniac.name);
         expect(result.needsSecondAction).toBe(false);
-        expect(clonePlayer.getRole().name).toBe("الساهر");
-        expect(clonePlayer.getOriginalRole().name).toBe("الشبيه");
+        expect(clonePlayer.getRole().name).toBe(R.insomniac.name);
+        expect(clonePlayer.getOriginalRole().name).toBe(R.clone.name);
         expect((clonePlayer as any)._clonedRoleName).toBe("insomniac");
-        expect(result.message).toContain("الساهر");
+        expect(result.message).toContain(R.insomniac.name);
       });
 
       it("should clone Joker", () => {
@@ -743,9 +743,9 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("الجوكر");
+        expect(result.clonedRole).toBe(R.joker.name);
         expect(result.needsSecondAction).toBe(false);
-        expect(clonePlayer.getRole().name).toBe("الجوكر");
+        expect(clonePlayer.getRole().name).toBe(R.joker.name);
         expect(result.autoResult.groundRole).toBeTruthy();
         expect(result.autoResult.targetGroundIndex).toBeGreaterThanOrEqual(0);
       });
@@ -758,9 +758,9 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("الرمال");
+        expect(result.clonedRole).toBe(R.seer.name);
         expect(result.needsSecondAction).toBe(true);
-        expect(clonePlayer.getRole().name).toBe("الرمال");
+        expect(clonePlayer.getRole().name).toBe(R.seer.name);
         expect(result.groundCards).toBeDefined();
         expect(result.otherPlayers).toBeDefined();
         expect(result.message).toContain("اعمل حركته دلوقتي");
@@ -772,9 +772,9 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("الحرامي");
+        expect(result.clonedRole).toBe(R.robber.name);
         expect(result.needsSecondAction).toBe(true);
-        expect(clonePlayer.getRole().name).toBe("الحرامي");
+        expect(clonePlayer.getRole().name).toBe(R.robber.name);
         expect(result.otherPlayers).toBeDefined();
         expect(result.message).toContain("اعمل حركته دلوقتي");
       });
@@ -785,9 +785,9 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("الشقية");
+        expect(result.clonedRole).toBe(R.troublemaker.name);
         expect(result.needsSecondAction).toBe(true);
-        expect(clonePlayer.getRole().name).toBe("الشقية");
+        expect(clonePlayer.getRole().name).toBe(R.troublemaker.name);
         expect(result.otherPlayers).toBeDefined();
         expect(result.message).toContain("اعمل حركته دلوقتي");
       });
@@ -798,7 +798,7 @@ describe("Role Tests", () => {
         const action = createCloneAction(targetPlayer);
         const result = clone.performAction()(game, clonePlayer, action);
 
-        expect(result.clonedRole).toBe("الليم");
+        expect(result.clonedRole).toBe(R.drunk.name);
         expect(result.needsSecondAction).toBe(false);
         expect(result.autoResult.success).toBe(true);
         expect(result.autoResult.targetGroundIndex).toBeGreaterThanOrEqual(0);
@@ -873,16 +873,16 @@ describe("Role Tests", () => {
       ];
 
       const expectedNames = [
-        "العفريت",
-        "الرمال",
-        "التابع",
-        "البناي",
-        "الليم",
-        "الحرامي",
-        "الشقية",
-        "الجوكر",
-        "الساهر",
-        "الشبيه",
+        R.werewolf.name,
+        R.seer.name,
+        R.minion.name,
+        R.mason.name,
+        R.drunk.name,
+        R.robber.name,
+        R.troublemaker.name,
+        R.joker.name,
+        R.insomniac.name,
+        R.clone.name,
       ];
 
       roles.forEach((role, index) => {
