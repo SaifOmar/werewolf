@@ -1,4 +1,4 @@
-import type { PlayerId, Settings, UpdateGamePayload } from "./game-types";
+import type { PlayerId, Settings, UpdateGamePayload } from "./game-types.js";
 
 export interface JoinGameData {
   gameCode: string;

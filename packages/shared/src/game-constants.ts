@@ -1,4 +1,4 @@
-import { ROLE_REGISTRY } from "./role-registry";
+import { ROLE_REGISTRY } from "./role-registry.js";
 
 export const MAX_PLAYERS = 12;
 export const MIN_PLAYERS = 6;
