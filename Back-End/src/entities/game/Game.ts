@@ -703,15 +703,19 @@ function buildPlayerPrivateData(
     return null;
   }
 
-  const role = player.getRole();
+  // Serve what this player legitimately knows about their own card,
+  // never the live truth — silent swaps (robber/drunk/warlock/troublemaker
+  // victims) must not leak through snapshots. Full truth is revealed
+  // publicly at endgame via resultsPlayerRoles.
+  const knownRole = player.getKnownRole();
   const originalRole = player.getOriginalRole();
   const voteEntry = game.votes.find((v) => v.voter === playerId);
 
   return {
-    currentRole: role?.name ?? null,
+    currentRole: knownRole?.name ?? null,
     originalRole: originalRole?.name ?? null,
-    roleTeam: role?.team ?? null,
-    roleDescription: role?.description ?? null,
+    roleTeam: knownRole?.team ?? null,
+    roleDescription: knownRole?.description ?? null,
     hasConfirmedRole: game.confirmedPlayerRoleReveal.includes(playerId),
     hasPerformedAction: game.confirmedPlayerPerformActions.includes(playerId),
     hasVoted: !!voteEntry,

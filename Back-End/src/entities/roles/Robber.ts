@@ -46,7 +46,9 @@ export class Robber implements Role {
       const temp = player.getRole();
       const stolenRole = targetPlayer.getRole();
 
-      player.setRole(stolenRole);
+      // The robber SAW the stolen card — it becomes their known role.
+      player.setRole(stolenRole, true);
+      // The victim receives the robber's old card silently.
       targetPlayer.setRole(temp);
 
       return {

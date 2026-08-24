@@ -46,7 +46,9 @@ export class Clone implements Role {
       const clonedRole = targetPlayer.getOriginalRole();
       const clonedRoleName = roleIdOf(clonedRole.name);
 
-      player.setRole(clonedRole);
+      // The clone looked at the target's card — they know what they became.
+      // The target is copied, not swapped: nothing changes for them.
+      player.setRole(clonedRole, true);
       (player as any)._wasClone = true;
       (player as any)._clonedRoleName = clonedRoleName;
       (player as any)._clonedRole = clonedRole;

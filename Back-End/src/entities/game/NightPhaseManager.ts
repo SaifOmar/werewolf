@@ -435,6 +435,8 @@ export class NightPhaseManager {
       try {
         const currentRole = player.getRole();
         const hasChanged = roleIdOf(currentRole.name) !== "insomniac";
+        // The clone-insomniac viewed their final card — mark it known.
+        player.setRole(currentRole, true);
         const result = {
           originalRole: ROLE_NAMES.INSOMNIAC,
           currentRole: currentRole.name,

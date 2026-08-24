@@ -31,6 +31,9 @@ export class Insomniac implements Role {
       const currentRole = player.getRole();
       const hasChanged = originalRole.name !== currentRole.name;
 
+      // The insomniac just viewed their final card — it is now known.
+      player.setRole(currentRole, true);
+
       return {
         originalRole: originalRole.name,
         currentRole: currentRole.name,
