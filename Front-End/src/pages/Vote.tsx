@@ -40,7 +40,7 @@ export default function Vote({ snapshot, emit }: PageProps) {
         </>
       ) : (
         <>
-          <p className="hint">مين الوحش؟ اختار بعناية — صوتك نهائي</p>
+          <p className="hint">مين في الحرامية؟ اختار بعناية — صوتك نهائي</p>
           <ul className="player-list selectable">
             {others.map((p) =>
               confirmTarget === p.id ? (

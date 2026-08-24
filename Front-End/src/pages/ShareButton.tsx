@@ -11,7 +11,7 @@ export default function ShareButton({ gameCode }: { gameCode: string }) {
   const handleShare = useCallback(async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "لعبة الوحش", text: shareText, url: shareUrl });
+        await navigator.share({ title: "لعبة الحرامية", text: shareText, url: shareUrl });
         return;
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return;

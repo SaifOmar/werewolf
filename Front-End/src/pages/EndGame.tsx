@@ -23,8 +23,8 @@ export default function EndGame({ snapshot, emit }: { snapshot: UpdateGamePayloa
 
   let headline = "انتهت اللعبة";
   if (isDraw) headline = "تعادل! 🤝";
-  else if (winners === "villain") headline = "الوحوش كسبت 🐺";
-  else if (winners === "village") headline = "أهل القرية كسبوا 🌾";
+  else if (winners === "villain") headline = "الحرامية كسبت 💰";
+  else if (winners === "village") headline = "أهل الحارة كسبوا 🏮";
   else if (winners) headline = `الفريق الفائز: ${winners}`;
 
   const roleOf = (p: { name: string; role: string }) => p.role;

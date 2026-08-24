@@ -167,9 +167,9 @@ function JoinScreen({ canRejoin }: { canRejoin: boolean }) {
   return (
     <main className="center-screen">
       <div className="join-art"><WolfMoon size={140} /></div>
-      <h1 className="title">🐺 الوحش</h1>
+      <h1 className="title">💰 الحرامية</h1>
       <ClawMarks width={170} />
-      <p className="subtitle">وحش ليلة واحدة</p>
+      <p className="subtitle">حارة… ليلة واحدة</p>
 
       <label className="field">
         <span>اسمك</span>

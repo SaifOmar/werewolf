@@ -25,11 +25,11 @@ export function WolfMoon({ size = 120 }: { size?: number }) {
       <path
         d="M30 108 C34 96 36 88 44 82 L48 72 C49 69 51 68 53 66 L54 60 L58 64 L62 62 L64 56 L67 61 L74 64 C80 66 84 71 86 78 L90 92 C91 98 89 104 86 108 Z"
         fill="#160a0e"
-        stroke="#dc2626"
+        stroke="#cf5c28"
         strokeWidth="1.2"
         strokeOpacity="0.6"
       />
-      <circle cx="59.5" cy="59.5" r="1.3" fill="#dc2626">
+      <circle cx="59.5" cy="59.5" r="1.3" fill="#cf5c28">
         <animate attributeName="opacity" values="1;0.35;1" dur="3s" repeatCount="indefinite" />
       </circle>
     </svg>
@@ -48,7 +48,7 @@ export function ClawMarks({ width = 180 }: { width?: number }) {
         <g key={i}>
           <path
             d={`M${m.x} 4 Q ${m.x + 8} 20 ${m.x + 4} 38`}
-            stroke="#dc2626"
+            stroke="#cf5c28"
             strokeWidth={m.w}
             strokeLinecap="round"
             transform={`rotate(${m.rot} ${m.x + 6} 20)`}
@@ -59,7 +59,7 @@ export function ClawMarks({ width = 180 }: { width?: number }) {
           {/* faint parallel scratch beside each mark */}
           <path
             d={`M${m.x + 7} 7 Q ${m.x + 13} 20 ${m.x + 10} 34`}
-            stroke="#991b1b"
+            stroke="#7c3413"
             strokeWidth="1.4"
             strokeLinecap="round"
             transform={`rotate(${m.rot} ${m.x + 6} 20)`}

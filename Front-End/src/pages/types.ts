@@ -8,7 +8,7 @@ export interface PageProps {
 }
 
 export const ROLE_TEAM_LABEL: Record<string, string> = {
-  villain: "فريق الوحوش",
-  village: "أهل القرية",
+  villain: "فريق الحرامية",
+  village: "أهل الحارة",
   neutral: "محايد",
 };

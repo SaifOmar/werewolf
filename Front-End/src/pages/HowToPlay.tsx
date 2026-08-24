@@ -24,8 +24,8 @@ const EXPANSION = [
 ];
 
 const TEAM_LABEL: Record<string, { text: string; cls: string }> = {
-  villain: { text: "الوحوش", cls: "team-villain" },
-  village: { text: "أهل القرية", cls: "team-village" },
+  villain: { text: "الحرامية", cls: "team-villain" },
+  village: { text: "أهل الحارة", cls: "team-village" },
   neutral: { text: "محايد", cls: "team-neutral" },
 };
 
@@ -61,7 +61,7 @@ export default function HowToPlay({ onClose }: { onClose: () => void }) {
         <div className="htp-content">
           {tab === "guide" && (
             <>
-              <p className="htp-flavor">أهلاً بيك في القرية… اللي مش كل اللي فيها بيقول الحقيقة.</p>
+              <p className="htp-flavor">أهلاً بيك في الحارة… اللي مش كل اللي فيها بيقول الحقيقة.</p>
               {[
                 ["جمعوا الشلة", "محتاجين ٦ لاعبين على الأقل عشان نبدأ."],
                 ["الأدوار توزعت", "كل لاعب بياخد دور سرّي، و٣ كروت زيادة بتتحط على الأرض وشها لتحت. متقولش حد دورك."],
@@ -79,9 +79,9 @@ export default function HowToPlay({ onClose }: { onClose: () => void }) {
               ))}
               <div className="htp-win">
                 <span className="htp-win-label">مين يكسب؟</span>
-                <p><span className="htp-team village">أهل القرية</span> يكسبوا لو حرامي واحد اتطرد.</p>
+                <p><span className="htp-team village">أهل الحارة</span> يكسبوا لو حرامي واحد اتطرد.</p>
                 <p><span className="htp-team villain">الحرامية</span> يكسبوا لو كلهم عاشوا بعد التصويت.</p>
-                <p><span className="htp-team neutral">{ROLE_REGISTRY.joker.name}</span> يكسب لوحده لو القرية صوتت عليه.</p>
+                <p><span className="htp-team neutral">{ROLE_REGISTRY.joker.name}</span> يكسب لوحده لو الحارة صوّتت عليه.</p>
               </div>
             </>
           )}

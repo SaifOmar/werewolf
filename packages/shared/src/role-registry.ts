@@ -167,10 +167,10 @@ export const ROLE_REGISTRY: Record<string, RoleDef> = {
     knows: "مين بدلت دوره بس — لا دوره القديم ولا الجديد",
     // decree scroll with wax seal
     roleIcon: `
-      <path d="M7.5 3.5h9a2 2 0 012 2v13a2 2 0 01-2 2h-9a2 2 0 01-2-2v-13a2 2 0 012-2z" fill="rgba(163,230,53,0.1)" stroke="#a3e635" stroke-width="${SW}" />
-      <path d="M8.5 8h7M8.5 11h7M8.5 14h3.5" stroke="#a3e635" stroke-width="${SW_THIN}" stroke-linecap="round" />
-      <circle cx="14.8" cy="16.8" r="1.6" fill="#a3e635" opacity="0.85" />
-      <path d="M14 18.2l-1 2.2M15.6 18.2l1 2.2" stroke="#a3e635" stroke-width="${SW_THIN}" stroke-linecap="round" />
+      <path d="M7.5 3.5h9a2 2 0 012 2v13a2 2 0 01-2 2h-9a2 2 0 01-2-2v-13a2 2 0 012-2z" fill="rgba(217,164,65,0.12)" stroke="#d9a441" stroke-width="${SW}" />
+      <path d="M8.5 8h7M8.5 11h7M8.5 14h3.5" stroke="#d9a441" stroke-width="${SW_THIN}" stroke-linecap="round" />
+      <circle cx="14.8" cy="16.8" r="1.6" fill="#d9a441" opacity="0.85" />
+      <path d="M14 18.2l-1 2.2M15.6 18.2l1 2.2" stroke="#d9a441" stroke-width="${SW_THIN}" stroke-linecap="round" />
     `,
   },
   insomniac: {
