@@ -73,6 +73,9 @@ export class Game {
   hostTransferTimeout: NodeJS.Timeout | null = null;
   roleRevealTimeout: NodeJS.Timeout | null = null;
   roleRevealEndsAt: number | null = null;
+  /** Final verdict stored at finish() so snapshots never re-derive it. */
+  finalIsDraw: boolean = false;
+  eliminatedPlayerId: PlayerId | null = null;
 
   readonly disconnectGraceSeconds = 10;
   private availableRoles: Role[] = [];
@@ -500,21 +503,14 @@ export class Game {
     const votes = this.voteResolver.getVoteResults(this.votes);
     this.prettyVotes = this.votes;
 
-    votes.forEach((value, key) => {
-      if (key === "noWerewolf") {
-        this.logger.log(`No Werewolf has been voted: ${value} times`);
-      } else {
-        const player1 = this.getPlayerById(key);
-        this.logger.log(
-          `Voter: ${player1.name} has been voted: ${value} times`,
-        );
-      }
-    });
-
-    this.endedAt = Date.now();
+    // Store the resolver's full verdict — including draws — so snapshots
+    // report exactly what was decided instead of re-deriving it.
     const result = this.voteResolver.calculateResults(votes, this.players);
     this.winners = result.winningTeam;
-    this.logger.info(`number of events: ${this.numberOfEvents}`);
+    this.finalIsDraw = result.isDraw;
+    this.eliminatedPlayerId = result.eliminatedPlayerId;
+
+    this.endedAt = Date.now();
     this.emit();
   }
 
@@ -660,8 +656,8 @@ export function BuildGameSnapshot(
       startedAt: game.startedAt ?? null,
     },
     winners: game.winners ?? null,
-    isDraw: isEndGame ? game.winners === null : false,
-    eliminatedPlayerId: isEndGame ? resolveEliminatedPlayer(game) : null,
+    isDraw: isEndGame ? game.finalIsDraw : false,
+    eliminatedPlayerId: isEndGame ? game.eliminatedPlayerId : null,
     resultsVotes: isEndGame
       ? game.prettyVotes.map((v) => ({
         voter: game.players.find((p) => p.id === v.voter)?.name ?? v.voter,
@@ -722,16 +718,4 @@ function buildPlayerPrivateData(
     votedForId: voteEntry?.vote ?? null,
     lastActionResult: player.lastActionResult ?? null,
   };
-}
-
-// TODO(saif) : review this when we get to working on endgame
-function resolveEliminatedPlayer(game: Game): PlayerId | null {
-  const tally = new Map<string, number>();
-  for (const { vote } of game.prettyVotes) {
-    if (vote !== "noWerewolf") {
-      tally.set(vote, (tally.get(vote) ?? 0) + 1);
-    }
-  }
-  if (tally.size === 0) return null;
-  return [...tally.entries()].reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 }

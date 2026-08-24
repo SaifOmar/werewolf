@@ -2,6 +2,7 @@ import { ROLE_NAMES, NUMBER_OF_GROUND_ROLES, MIN_PLAYERS } from "@werewolf/share
 import { Role, RoleClasses } from "../roles";
 import { Player } from "../Player";
 import { Logger } from "../../utils/Logger";
+import { roleIdOf } from "../roles/roleId";
 
 function getRoleDistribution(playerCount?: number) {
   let werewolfCount = 2;
@@ -96,6 +97,43 @@ export class RoleAssigner {
     currentGameRolesMap.forEach((value, key) => {
       this.logger.info(`key: ${key}, value: ${value}`);
     });
+
+    this.ensureRolesForPlayers(players, availableRoles, currentGameRolesMap);
+  }
+
+  /**
+   * Dev/test-only hook (WEREWOLF_ENSURE="clone,insomniac"): guarantees the
+   * listed roles are dealt to PLAYERS rather than landing in the ground or
+   * staying in the pool. No effect when the env var is unset.
+   */
+  private ensureRolesForPlayers(players: Player[], availableRoles: Role[], currentGameRolesMap: Map<string, number>): void {
+    const ensureEnv = process.env.WEREWOLF_ENSURE;
+    if (!ensureEnv) return;
+
+    for (const roleId of ensureEnv.split(",").map((s) => s.trim()).filter(Boolean)) {
+      const alreadyDealt = players.some((p) => roleIdOf(p.getOriginalRole().name) === roleId);
+      if (alreadyDealt) continue;
+
+      const poolIdx = availableRoles.findIndex((r) => roleIdOf(r.name) === roleId);
+      if (poolIdx === -1) {
+        this.logger.warn(`ensureRoles: ${roleId} not in pool — cannot guarantee`);
+        continue;
+      }
+
+      const victimIdx = Math.floor(Math.random() * players.length);
+      const swappedOut = players[victimIdx].getRole();
+      players[victimIdx].AddRole(availableRoles[poolIdx]);
+      availableRoles.splice(poolIdx, 1);
+      availableRoles.push(swappedOut);
+
+      const addedName = players[victimIdx].getOriginalRole().name;
+      currentGameRolesMap.set(addedName, (currentGameRolesMap.get(addedName) ?? 0) + 1);
+      const prevOut = currentGameRolesMap.get(swappedOut.name) ?? 1;
+      if (prevOut <= 1) currentGameRolesMap.delete(swappedOut.name);
+      else currentGameRolesMap.set(swappedOut.name, prevOut - 1);
+
+      this.logger.warn(`ensureRoles: forced ${roleId} onto player ${players[victimIdx].name} (swapped out ${swappedOut.name})`);
+    }
   }
 
   createRoleQueue(): string[] {
